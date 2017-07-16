@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <title>Letters</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="style.css">
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="functions.js"></script>
+        <script src="letters.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>Countdown</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <h2>Letters</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">Select vowels of consonants</div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-md-offset-3">
+                    <button class="btn btn-default btn-full" id="vowels" onclick="letter('v')">Vowel</button>
+                </div>
+                <div class="col-md-3 col-md-offset">
+                    <button class="btn btn-default btn-full" id="consonants" onclick="letter('c')">Consonant</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 stage">
+                    <div class="tile"><div class="char" id="t0">&nbsp;</div></div>
+                    <div class="tile"><div class="char" id="t1">&nbsp;</div></div>
+                    <div class="tile"><div class="char" id="t2">&nbsp;</div></div>
+                    <div class="tile"><div class="char" id="t3">&nbsp;</div></div>
+                    <div class="tile"><div class="char" id="t4">&nbsp;</div></div>
+                    <div class="tile"><div class="char" id="t5">&nbsp;</div></div>
+                    <div class="tile"><div class="char" id="t6">&nbsp;</div></div>
+                    <div class="tile"><div class="char" id="t7">&nbsp;</div></div>
+                    <div class="tile"><div class="char" id="t8">&nbsp;</div></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
