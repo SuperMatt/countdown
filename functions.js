@@ -50,4 +50,6 @@ function reset() {
   $("#clock").trigger("pause")
   $("#clock").prop("currentTime", 0)
 
+  $("#consonants").attr("disabled", false)
+  $("#vowels").attr("disabled", false)
 }
