@@ -15,6 +15,9 @@ var numbers_points = {
     "10": 5
 }
 
+shuff_large = []
+shuff_small = []
+
 function generate() {
     number = Math.floor(Math.random()* 898 ) + 101
     $("#target").html("<div class=\"tile tile-big\"><div class=\"char\">" + number + "</div></div>")
@@ -24,8 +27,6 @@ function random_number(big) {
     var stagehtml = "<div class=\"row\"><div class=\"col-md-12 stage\">"
     sm = 6 - big
 
-    shuff_large = shuffle(large)
-    shuff_small = shuffle(small)    
     for (i=0; i < big; i ++) {
         stagehtml += '<div class="tile"><div class="char">' + shuff_large[i] + '</div></div>'
     }

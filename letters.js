@@ -55,8 +55,7 @@ $( document ).ready(function() {
         }
     }
 
-    allvowels = shuffle(allvowels)
-    allcons = shuffle(allcons)
+    reset()
 });
 
 function letter(type) {

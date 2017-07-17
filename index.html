@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <title>Countdown</title>
+         <meta charset="UTF-8"> 
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="style.css">
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="functions.js"></script>
+        <script src="letters.js"></script>
+        <script src="numbers.js"></script>
+        <script src="audio.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>Countdown</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <audio id="clock">
+                        <source src="clock.mp3" type="audio/mpeg">
+                    </audio>
+                    <button class="btn btn-primary btn-lg" onclick="countdown()">GO!</button>
+                    <button class="btn btn-warning btn-lg" onclick="reset()">Clear Boards and Reset</button>
+                </div>
+                <div class="col-md-8">
+                    <button class="btn btn-default btn-lg" onclick="section('l')">Letters</button>
+                    <button class="btn btn-default btn-lg" onclick="section('n')">Numbers</button>
+                </div>
+            </div>
+            <div id="letters" hidden>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2>Letters</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">Select vowels or consonants</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-md-offset-3">
+                        <button class="btn btn-default btn-full" id="vowels" onclick="letter('v')">Vowel</button>
+                    </div>
+                    <div class="col-md-3 col-md-offset">
+                        <button class="btn btn-default btn-full" id="consonants" onclick="letter('c')">Consonant</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 stage">
+                        <div class="tile"><div class="char" id="t0">&nbsp;</div></div>
+                        <div class="tile"><div class="char" id="t1">&nbsp;</div></div>
+                        <div class="tile"><div class="char" id="t2">&nbsp;</div></div>
+                        <div class="tile"><div class="char" id="t3">&nbsp;</div></div>
+                        <div class="tile"><div class="char" id="t4">&nbsp;</div></div>
+                        <div class="tile"><div class="char" id="t5">&nbsp;</div></div>
+                        <div class="tile"><div class="char" id="t6">&nbsp;</div></div>
+                        <div class="tile"><div class="char" id="t7">&nbsp;</div></div>
+                        <div class="tile"><div class="char" id="t8">&nbsp;</div></div>
+                    </div>
+                </div>
+            </div>
+            <div id="numbers" hidden>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2>Numbers</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">Select number of big numbers</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 ">
+                        <a class="btn btn-default btn-full" href="javascript:random_number(1)">1</a>
+                    </div>
+                    <div class="col-md-3 ">
+                        <a class="btn btn-default btn-full" href="javascript:random_number(2)">2</a>
+                    </div>
+                    <div class="col-md-3 ">
+                        <a class="btn btn-default btn-full" href="javascript:random_number(3)">3</a>
+                    </div>
+                    <div class="col-md-3 ">
+                        <a class="btn btn-default btn-full" href="javascript:random_number(4)">4</a>
+                    </div>
+                </div>
+                <div id="stage">
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3" id="target">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

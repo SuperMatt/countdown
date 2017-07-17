@@ -16,3 +16,38 @@ function shuffle(array) {
 
   return array;
 }
+
+function section(sec) {
+  if (sec == "l") {
+    show = "#letters"
+    hide = "#numbers"
+  } else if (sec == "n") {
+    show = "#numbers"
+    hide = "#letters"
+  }
+
+  $(show).show()
+  $(hide).hide()
+  reset()
+}
+
+function reset() {
+  $("#stage").html("")
+  $("#target").html("")
+  for (i = 0; i < 9; i++) {
+    $("#t" + i).html("&nbsp;")
+  }
+
+  numvowels = 0
+  numcons = 0
+
+  allvowels = shuffle(allvowels)
+  allcons = shuffle(allcons)
+
+  shuff_large = shuffle(large)
+  shuff_small = shuffle(small)
+
+  $("#clock").trigger("pause")
+  $("#clock").prop("currentTime", 0)
+
+}
