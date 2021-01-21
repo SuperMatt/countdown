@@ -3,10 +3,17 @@
 body {
     font-weight: 800;
     font-family: "Open Sans", sans-serif;
+    background-image: url("holly-2.png");
+    background-repeat: no-repeat;
+    background-size: 500px;
+    background-position: right top;
 }
 
 .tile {
+    /*
     background-color: #3300FF;
+    */
+    background-color: #006600;
     width: 100px;
     height: 100px;
     margin: 5px;
