@@ -18,6 +18,7 @@ document.addEventListener("keydown", function(e) {
     }
     else if (k == "r") reset()
     else if (k == "f") toggle_fullscreen()
+    else if (k == "m") toggle_muted()
     else if (k == "l") section("letters")
     else if (k == "n") section("numbers")
     else if (k == "k") section("conundrum")

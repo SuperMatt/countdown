@@ -229,6 +229,29 @@ body {
 .checked-word.bad .w { text-decoration: line-through; }
 .checked-word.best { background: var(--good); color: var(--bg-solid); border-color: var(--good); }
 
+.checked-word.late { border-style: dashed; opacity: .7; }
+.checked-word .tag { font-size: .7em; text-transform: uppercase; letter-spacing: .08em; }
+.checked-word.flash { animation: pulse .4s 3; }
+.check input.wide { width: 18em; text-transform: none; }
+
+/* Answers compared with your words */
+.answers .summary { margin: 0; font-weight: 700; font-size: clamp(16px, 1.8vw, 22px); }
+.answers .word.found { color: var(--good); text-decoration: underline; text-underline-offset: .2em; }
+
+/* Time's up */
+.times-up {
+    font-family: var(--display); font-weight: var(--weight);
+    font-size: clamp(18px, 2vw, 26px);
+    padding: .2em .8em;
+    background: var(--bad); color: var(--bg-solid);
+    border-radius: var(--radius);
+}
+.clock.flash { animation: pulse .5s 4; }
+@keyframes pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) {
+    .clock.flash, .checked-word.flash { animation: none; }
+}
+
 /* Footer */
 .keys { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); border-top: var(--rule); padding-top: 14px; }
 .keys kbd { font-family: var(--body); font-size: 12px; padding: 1px 6px; border: 1px solid var(--btn-line); border-radius: 4px; color: var(--ink); }
@@ -238,6 +261,15 @@ body {
 .is-fullscreen .fb, .is-fullscreen .keys, .is-fullscreen .styles { display: none; }
 
 @media (max-width: 640px) {
+    /* Street Countdown on a phone: rows of 6 bigger tiles instead of rows of 9 */
+    #letter-stage.street {
+        --tile: calc((100vw - 32px - 5 * 6px) / 6.4);
+        gap: 6px;
+        max-width: calc(6 * var(--tile) + 5 * 6px);
+        margin: 0 auto;
+    }
+    #letter-stage.street .break { display: none; }
+    .check input.wide { width: 13em; }
     .answers .group { grid-template-columns: 1fr; }
     .top { align-items: flex-start; }
     .check input { width: 9em; }

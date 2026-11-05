@@ -44,10 +44,54 @@ function set_result(id, text, good) {
   el.className = "result " + (good === undefined ? "" : good ? "good" : "bad")
 }
 
+// Saved in the browser: options, letters mode and the last round played
+function store_get(key) {
+  try { return localStorage.getItem(key) } catch (e) { return null }
+}
+
+function store_set(key, value) {
+  try { localStorage.setItem(key, value) } catch (e) {}
+}
+
+var settings = {
+  muted: store_get("muted") == "1",
+  auto_answers: store_get("auto_answers") == "1"
+}
+
+function save_settings() {
+  store_set("muted", settings.muted ? "1" : "0")
+  store_set("auto_answers", settings.auto_answers ? "1" : "0")
+  render_options()
+}
+
+function render_options() {
+  $id("opt-sound").classList.toggle("on", !settings.muted)
+  $id("opt-sound").textContent = settings.muted ? "Sound off" : "Sound on"
+  $id("opt-auto").classList.toggle("on", settings.auto_answers)
+  $id("opt-auto").textContent = "Answers at time's up: " + (settings.auto_answers ? "on" : "off")
+}
+
+function toggle_auto_answers() {
+  settings.auto_answers = !settings.auto_answers
+  save_settings()
+}
+
+// Called by the clock when the 30 seconds are up
+function on_time_up() {
+  if (!settings.auto_answers) return
+  if (current_section == "letters" && board_letters.length > 0) show_words()
+  else if (current_section == "numbers" && target !== null) all_steps()
+  else if (current_section == "conundrum" && conundrum_word && !conundrum_solved) {
+    set_result("guess-result", "Out of time!", false)
+    reveal_conundrum()
+  }
+}
+
 var current_section = "letters"
 
 function section(sec) {
   current_section = sec
+  store_set("section", sec)
   ;["letters", "numbers", "conundrum"].forEach(function(s) {
     $id(s).hidden = s != sec
   })
@@ -90,10 +134,12 @@ document.addEventListener("fullscreenchange", function() {
 document.addEventListener("DOMContentLoaded", function() {
   if (!document.documentElement.requestFullscreen) $id("fullscreen-btn").hidden = true
   set_style(document.documentElement.dataset.style)
+  render_options()
   init_letters()
   init_clock()
-  // ?street=1 starts in Street Countdown mode
-  mode = get_flag("street") ? "street" : "classic"
+  // ?street=1 starts in Street Countdown mode, otherwise use the last mode played
+  mode = get_flag("street") ? "street" : (store_get("mode") == "street" ? "street" : "classic")
   update_mode_buttons()
-  section("letters")
+  var last = store_get("section")
+  section(["letters", "numbers", "conundrum"].indexOf(last) >= 0 ? last : "letters")
 })

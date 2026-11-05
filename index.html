@@ -74,6 +74,11 @@
                         <button class="chip" data-style-btn="quiz" onclick="set_style('quiz')">Quiz Sheet</button>
                         <button class="chip" data-style-btn="led" onclick="set_style('led')">Amber LED</button>
                     </div>
+                    <div class="styles" role="group" aria-label="Options">
+                        <span class="styles-label">Options</span>
+                        <button class="chip" id="opt-sound" onclick="toggle_muted()">Sound on</button>
+                        <button class="chip" id="opt-auto" onclick="toggle_auto_answers()">Answers at time's up: off</button>
+                    </div>
                     <div class="fb fb-like" data-href="http://www.01189998819991197253.org" data-width="450" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="true"></div>
                 </div>
                 <svg class="clock" id="clock-face" viewBox="0 0 100 100" role="img" aria-label="Countdown clock">
@@ -88,6 +93,7 @@
             <nav class="controls">
                 <button class="btn go" onclick="countdown()">GO!</button>
                 <button class="btn" onclick="reset()">Clear Boards and Reset</button>
+                <span class="times-up" id="times-up" role="status" hidden>Time's up!</span>
                 <span class="spacer"></span>
                 <button class="btn tab" data-tab="letters" onclick="section('letters')">Letters</button>
                 <button class="btn tab" data-tab="numbers" onclick="section('numbers')">Numbers</button>
@@ -133,6 +139,15 @@
                     <div class="target" id="target">&nbsp;</div>
                 </div>
                 <div class="actions">
+                    <form class="check" onsubmit="check_method(event)">
+                        <label for="method" class="sr-only">Check your method</label>
+                        <input id="method" class="wide" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Your method, e.g. (75 + 3) × 6">
+                        <button class="btn" type="submit">Check</button>
+                    </form>
+                    <span class="result" id="method-result" aria-live="polite"></span>
+                </div>
+                <div class="checked" id="attempts" aria-live="polite"></div>
+                <div class="actions">
                     <button class="btn" id="generate-btn" onclick="generate()" disabled>Generate target</button>
                     <span class="spacer"></span>
                     <button class="btn" id="solve-btn" onclick="show_solution()" disabled>Solution</button>
@@ -169,6 +184,7 @@
                 <span><kbd>T</kbd> target / new conundrum</span>
                 <span><kbd>A</kbd> answers / next step / reveal</span>
                 <span><kbd>F</kbd> fullscreen</span>
+                <span><kbd>M</kbd> sound on/off</span>
                 <span><kbd>Esc</kbd> leave text box</span>
                 <span class="spacer"></span>
                 <a href="classic/">Original version</a>

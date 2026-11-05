@@ -1,6 +1,7 @@
 // Conundrum: a scrambled 9-letter word with exactly one answer
 var conundrums = null
 var conundrum_word = null
+var conundrum_solved = false
 
 // 9-letter words that are the only anagram of their letters.
 // Skip words ending in S to avoid easy plurals.
@@ -18,6 +19,7 @@ function build_conundrums(dict) {
 
 function reset_conundrum() {
     conundrum_word = null
+    conundrum_solved = false
     $id("conundrum-stage").innerHTML = tiles_html(["", "", "", "", "", "", "", "", ""])
     $id("conundrum-answer").innerHTML = ""
     $id("reveal-btn").disabled = true
@@ -44,9 +46,11 @@ function new_conundrum() {
 
 function reveal_conundrum() {
     if (!conundrum_word) return
+    conundrum_solved = true
     $id("conundrum-answer").innerHTML = "<h3>The answer</h3>" +
         '<div class="board">' + tiles_html(conundrum_word.toUpperCase().split("")) + "</div>"
-    stop_clock()
+    // Stop the music and freeze the clock where it is
+    pause_clock()
 }
 
 function guess_conundrum(e) {
@@ -57,11 +61,18 @@ function guess_conundrum(e) {
     }
     var g = $id("guess").value.toLowerCase().replace(/[^a-z]/g, "")
     if (!g) return
-    if (g == conundrum_word) {
-        set_result("guess-result", "✓ Correct! " + g.toUpperCase(), true)
+    var G = g.toUpperCase()
+    if (conundrum_solved) {
+        set_result("guess-result", g == conundrum_word ? "✓ " + G + " (already revealed)" : "✗ " + G + " is wrong", g == conundrum_word)
+    } else if (g == conundrum_word) {
+        var t = clock_elapsed()
+        var msg = clock_state == "up" ? "✓ " + G + " is right, but out of time"
+                : t === null ? "✓ Correct! " + G
+                : "✓ Correct! " + G + " in " + t.toFixed(1) + "s"
+        set_result("guess-result", msg, clock_state != "up")
         reveal_conundrum()
     } else {
-        set_result("guess-result", "✗ " + g.toUpperCase() + " is wrong", false)
-        $id("guess").value = ""
+        set_result("guess-result", "✗ " + G + " is wrong", false)
     }
+    if (g != conundrum_word) $id("guess").value = ""
 }

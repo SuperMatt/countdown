@@ -32,6 +32,7 @@ function reset_numbers() {
     $id("target").innerHTML = "&nbsp;"
     $id("generate-btn").disabled = true
     clear_solution()
+    clear_attempts()
 }
 
 function clear_solution() {
@@ -56,6 +57,7 @@ function generate() {
     target = Math.floor(Math.random() * 899) + 101  // 101 to 999
     $id("target").textContent = target
     clear_solution()
+    clear_attempts()
 }
 
 // Exhaustive search: closest result to target, using the fewest steps.
@@ -151,7 +153,170 @@ function next_step() {
 }
 
 function all_steps() {
-    if (!solution) return
+    if (target === null || board_numbers.length == 0) return
+    if (!solution) solution = solve_numbers(board_numbers, target)
     steps_shown = solution.steps.length
     render_solution()
+}
+
+// Method checker: type your working, e.g. (75 + 3) * 6 - 50
+// Checks it only uses numbers on the board and follows the rules,
+// then says how close it gets. Attempts stay listed until the next target.
+var attempts = []
+
+function clear_attempts() {
+    attempts = []
+    render_attempts()
+    if ($id("method")) $id("method").value = ""
+    set_result("method-result", "")
+}
+
+function tokenize(src) {
+    var tokens = []
+    var re = /\s*(?:(\d+)|([-+*\/xX×÷−()]))/gy
+    var m
+    src = src.trim()
+    re.lastIndex = 0
+    while (re.lastIndex < src.length) {
+        var start = re.lastIndex
+        m = re.exec(src)
+        if (!m) throw new Error("I don't understand \"" + src.slice(start).trim().charAt(0) + "\". Use numbers, + − × ÷ and brackets")
+        if (m[1] !== undefined) tokens.push({num: parseInt(m[1], 10)})
+        else tokens.push({op: {"x": "*", "X": "*", "×": "*", "÷": "/", "−": "-"}[m[2]] || m[2]})
+        while (re.lastIndex < src.length && /\s/.test(src[re.lastIndex])) re.lastIndex++
+    }
+    return tokens
+}
+
+var OP_SYMBOL = {"+": "+", "-": "\u2212", "*": "\u00d7", "/": "\u00f7"}
+
+// Evaluate with Countdown rules: every step must give a positive whole number
+function evaluate_method(src) {
+    var tokens = tokenize(src)
+    var pos = 0
+    var used = []
+
+    function peek() { return tokens[pos] }
+    function apply(a, op, b) {
+        var r
+        if (op == "+") r = a + b
+        else if (op == "*") r = a * b
+        else if (op == "-") {
+            r = a - b
+            if (r <= 0) throw new Error(a + " \u2212 " + b + " isn't allowed: every step must stay above zero")
+        } else {
+            if (b == 0 || a % b != 0) throw new Error(a + " \u00f7 " + b + " isn't a whole number")
+            r = a / b
+        }
+        return r
+    }
+    function factor() {
+        var t = tokens[pos++]
+        if (!t) throw new Error("It ends too soon")
+        if (t.num !== undefined) { used.push(t.num); return t.num }
+        if (t.op == "(") {
+            var v = expr()
+            if (!peek() || peek().op != ")") throw new Error("A bracket isn't closed")
+            pos++
+            return v
+        }
+        throw new Error("Unexpected " + (OP_SYMBOL[t.op] || t.op))
+    }
+    function term() {
+        var v = factor()
+        while (peek() && (peek().op == "*" || peek().op == "/")) {
+            var op = tokens[pos++].op
+            v = apply(v, op, factor())
+        }
+        return v
+    }
+    function expr() {
+        var v = term()
+        while (peek() && (peek().op == "+" || peek().op == "-")) {
+            var op = tokens[pos++].op
+            v = apply(v, op, term())
+        }
+        return v
+    }
+
+    if (tokens.length == 0) throw new Error("Type a method first")
+    var value = expr()
+    if (pos < tokens.length) throw new Error("Unexpected " + (tokens[pos].num !== undefined ? tokens[pos].num : (OP_SYMBOL[tokens[pos].op] || tokens[pos].op)))
+    return {value: value, used: used}
+}
+
+// Numbers used that aren't available on the board ("" if fine)
+function method_number_problems(used) {
+    var have = {}
+    board_numbers.forEach(function(n) { have[n] = (have[n] || 0) + 1 })
+    var need = {}
+    used.forEach(function(n) { need[n] = (need[n] || 0) + 1 })
+    var problems = []
+    Object.keys(need).forEach(function(n) {
+        if (!have[n]) problems.push(n + " isn't on the board")
+        else if (need[n] > have[n]) problems.push(n + " is used " + need[n] + " times but there " + (have[n] == 1 ? "is only one" : "are only " + have[n]))
+    })
+    return problems.join(", ")
+}
+
+function method_points(diff) {
+    return diff == 0 ? 10 : diff <= 5 ? 7 : diff <= 10 ? 5 : 0
+}
+
+function pretty_method(src) {
+    return src.replace(/\*|x|X/g, " \u00d7 ").replace(/\//g, " \u00f7 ").replace(/-/g, " \u2212 ").replace(/\+/g, " + ")
+              .replace(/\s+/g, " ").replace(/\( /g, "(").replace(/ \)/g, ")").trim()
+}
+
+function check_method(e) {
+    if (e) e.preventDefault()
+    var input = $id("method")
+    var src = input.value
+    if (!src.trim()) return
+    if (target === null) {
+        set_result("method-result", "Generate a target first.", false)
+        return
+    }
+    var r
+    try {
+        r = evaluate_method(src)
+    } catch (err) {
+        set_result("method-result", "✗ " + err.message, false)
+        return  // keep the text so a typo can be fixed
+    }
+    var problems = method_number_problems(r.used)
+    if (problems) {
+        set_result("method-result", "✗ Can't use that: " + problems, false)
+        return
+    }
+    var diff = Math.abs(r.value - target)
+    var pts = method_points(diff)
+    var late = clock_state == "up"
+    var msg = "= " + r.value + (diff == 0 ? ", exact!" : ", " + diff + " away") +
+              (late ? " (after time)" : " · " + pts + " point" + (pts == 1 ? "" : "s"))
+    set_result("method-result", (pts > 0 ? "✓ " : "") + msg, pts > 0 && !late)
+    attempts.push({text: pretty_method(src), value: r.value, diff: diff, late: late})
+    input.value = ""
+    render_attempts()
+}
+
+function render_attempts() {
+    var el = $id("attempts")
+    if (!el) return
+    if (attempts.length == 0) {
+        el.innerHTML = ""
+        return
+    }
+    var best = null
+    attempts.forEach(function(a) {
+        if (!a.late && (!best || a.diff < best.diff)) best = a
+    })
+    var html = '<div class="label">Your methods' + (best ? " · best " + best.value + (best.diff ? " (" + best.diff + " away)" : " (exact)") : "") + '</div><div class="chips">'
+    attempts.forEach(function(a) {
+        var good = method_points(a.diff) > 0
+        html += '<span class="checked-word ' + (good ? "good" : "bad") + (a == best && good ? " best" : "") + (a.late ? " late" : "") + '">' +
+                escape_html(a.text) + " = " + a.value + (a.diff == 0 ? " ✓" : " (" + a.diff + " off)") +
+                (a.late ? ' <span class="tag">late</span>' : "") + "</span>"
+    })
+    el.innerHTML = html + "</div>"
 }

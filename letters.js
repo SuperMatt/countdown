@@ -64,6 +64,7 @@ function update_mode_buttons() {
 
 function set_mode(m) {
     mode = m
+    store_set("mode", m)
     update_mode_buttons()
     reset()
 }
@@ -76,6 +77,7 @@ function render_tiles() {
         html += '<span class="tile" id="t' + i + '">&nbsp;</span>'
     }
     $id("letter-stage").innerHTML = html
+    $id("letter-stage").classList.toggle("street", mode == "street")
 }
 
 function reset_letters() {
@@ -91,6 +93,7 @@ function reset_letters() {
     $id("check-word").value = ""
     set_result("check-result", "")
     checked = []
+    answers_shown = false
     render_checked()
 }
 
@@ -187,12 +190,24 @@ function find_words(letters, dict) {
     return found
 }
 
+var answers_shown = false
+
+// Your longest valid word, not counting ones checked after time was up
+function best_checked() {
+    var best = null
+    checked.forEach(function(c) {
+        if (c.ok && !c.late && (!best || c.word.length > best.word.length)) best = c
+    })
+    return best
+}
+
 function show_words() {
     if (board_letters.length == 0) {
         $id("words").innerHTML = '<p class="muted">Pick some letters first.</p>'
         return
     }
-    $id("words").innerHTML = '<p class="muted">Thinking&hellip;</p>'
+    answers_shown = true
+    if (!words) $id("words").innerHTML = '<p class="muted">Thinking&hellip;</p>'
     var letters = board_letters.slice()
     load_words().then(function(dict) {
         if (letters.join() !== board_letters.join()) return  // board changed meanwhile
@@ -209,11 +224,26 @@ function show_words() {
             }
             groups[groups.length - 1].words.push(w)
         })
-        var html = "<h3>Answers</h3>"
+
+        // How did you do?
+        var mine = {}
+        checked.forEach(function(c) { if (c.ok) mine[c.word] = true })
+        var best = best_checked()
+        var max = groups[0].len
+        var summary
+        if (!best) summary = "Best possible: " + max + " letters"
+        else if (best.word.length == max) summary = "You found a best possible word: " + escape_html(best.word.toUpperCase()) + " (" + max + ")"
+        else summary = "Your best: " + escape_html(best.word.toUpperCase()) + " (" + best.word.length + ") · Best possible: " + max + " letters"
+
+        var html = "<h3>Answers</h3><p class=\"summary\">" + summary + "</p>"
         groups.slice(0, 3).forEach(function(g) {
             var shown = g.words.slice(0, 30)
+            // Always list the words you found, even past the first 30
+            g.words.slice(30).forEach(function(w) { if (mine[w]) shown.push(w) })
             html += '<div class="group"><span class="len">' + g.len + " letters (" + g.words.length + ')</span><div class="group-words">'
-            shown.forEach(function(w) { html += '<span class="word">' + escape_html(w) + "</span>" })
+            shown.forEach(function(w) {
+                html += '<span class="word' + (mine[w] ? " found" : "") + '">' + escape_html(w) + "</span>"
+            })
             if (g.words.length > shown.length) html += '<span class="word">&hellip;</span>'
             html += "</div></div>"
         })
@@ -225,31 +255,31 @@ function show_words() {
 
 // Word checker: is it in the dictionary, and can it be made from the board?
 // Every checked word stays listed under the board until the board is reset.
+// Words checked after the clock has run out are marked late.
 var checked = []
 
 function add_checked(word, ok, note) {
-    checked = checked.filter(function(c) { return c.word != word })
-    checked.push({word: word, ok: ok, note: note})
+    var late = clock_state == "up"
+    checked.push({word: word, ok: ok, note: late ? note + " (after time)" : note, late: late})
     render_checked()
+    if (answers_shown) show_words()
 }
 
-function render_checked() {
+function render_checked(flash_word) {
     var el = $id("checked")
     if (checked.length == 0) {
         el.innerHTML = ""
         return
     }
-    var best = null
-    checked.forEach(function(c) {
-        if (c.ok && (!best || c.word.length > best.word.length)) best = c
-    })
+    var best = best_checked()
     var html = '<div class="label">Your words' +
         (best ? " · best " + escape_html(best.word.toUpperCase()) + " (" + best.word.length + ")" : "") + "</div><div class=\"chips\">"
     checked.forEach(function(c) {
         html += '<span class="checked-word ' + (c.ok ? "good" : "bad") + (c == best ? " best" : "") +
+                (c.late ? " late" : "") + (c.word == flash_word ? " flash" : "") +
                 '" title="' + escape_html(c.note) + '">' +
                 (c.ok ? "✓ " : "✗ ") + '<span class="w">' + escape_html(c.word.toUpperCase()) + "</span>" +
-                (c.ok ? " " + c.word.length : "") + "</span>"
+                (c.ok ? " " + c.word.length : "") + (c.late ? ' <span class="tag">late</span>' : "") + "</span>"
     })
     $id("checked").innerHTML = html + "</div>"
 }
@@ -265,6 +295,11 @@ function check_word(e) {
         return
     }
     input.value = ""
+    if (checked.some(function(c) { return c.word == w })) {
+        set_result("check-result", "You've already checked " + W)
+        render_checked(w)
+        return
+    }
     var letters = board_letters.join()
     var missing = missing_letters(w, board_letters)
     if (missing) {
@@ -275,8 +310,9 @@ function check_word(e) {
     set_result("check-result", "Checking…")
     load_words().then(function() {
         if (letters !== board_letters.join()) return  // board changed meanwhile
+        if (checked.some(function(c) { return c.word == w })) return  // checked twice quickly
         if (word_set.has(w)) {
-            set_result("check-result", "✓ " + W + ": " + w.length + " letters", true)
+            set_result("check-result", "✓ " + W + ": " + w.length + " letters" + (clock_state == "up" ? " (after time)" : ""), true)
             add_checked(w, true, w.length + " letters")
         } else {
             set_result("check-result", "✗ " + W + " isn't in the dictionary", false)
