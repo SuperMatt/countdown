@@ -92,8 +92,7 @@
             </header>
 
             <nav class="controls">
-                <button class="btn go" onclick="countdown()">GO!</button>
-                <button class="btn" onclick="reset()">Clear Boards and Reset</button>
+                <button class="btn main go" id="main-btn" onclick="main_action()">GO!</button>
                 <span class="times-up" id="times-up" role="status" hidden>Time's up!</span>
                 <span class="get-ready" id="get-ready" role="status" hidden>Get ready…</span>
                 <span class="spacer"></span>
@@ -178,8 +177,8 @@
             </section>
 
             <footer class="keys">
-                <span><kbd>Space</kbd> GO</span>
-                <span><kbd>R</kbd> reset</span>
+                <span><kbd>Space</kbd> GO / stop</span>
+                <span><kbd>R</kbd> clear board</span>
                 <span><kbd>L</kbd> <kbd>N</kbd> <kbd>K</kbd> letters / numbers / conundrum</span>
                 <span><kbd>V</kbd> <kbd>C</kbd> vowel / consonant</span>
                 <span><kbd>0</kbd>–<kbd>4</kbd> big numbers</span>

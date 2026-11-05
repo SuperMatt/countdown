@@ -31,6 +31,29 @@ function init_clock() {
     $id("clock-ticks").innerHTML = ticks
     $id("clock").muted = settings.muted
     draw_clock(0)
+    update_main_button()
+}
+
+// One button that changes as the round goes: GO! -> Stop -> Clear board -> GO!
+function main_button_action() {
+    if (ready_timer || clock_state == "running") return "stop"
+    if (clock_state == "up" || clock_state == "stopped") return "clear"
+    return "go"
+}
+
+function update_main_button() {
+    var action = main_button_action()
+    var b = $id("main-btn")
+    b.className = "btn main " + action
+    b.textContent = {go: "GO!", stop: "Stop", clear: "Clear board"}[action]
+}
+
+function main_action() {
+    var action = main_button_action()
+    if (action == "go") countdown()
+    else if (action == "clear") reset()
+    else if (ready_timer) cancel_auto_start()   // stop during the get-ready pause: back to GO
+    else pause_clock()
 }
 
 // Like the show: a 60-second face, the hand sweeps half way round in 30 seconds
@@ -81,6 +104,7 @@ function show_times_up(on) {
 function time_up() {
     clock_state = "up"
     show_times_up(true)
+    update_main_button()
     on_time_up()
 }
 
@@ -103,12 +127,14 @@ function auto_start() {
             countdown()
         }
     }, 1000)
+    update_main_button()
 }
 
 function cancel_auto_start() {
     if (ready_timer) clearInterval(ready_timer)
     ready_timer = null
     $id("get-ready").hidden = true
+    update_main_button()
 }
 
 function countdown() {
@@ -122,6 +148,7 @@ function countdown() {
     show_times_up(false)
     clock_started = performance.now()
     clock_frame = requestAnimationFrame(tick)
+    update_main_button()
 
     // Put the cursor in this round's text box so you can start typing straight away
     var field = {letters: "check-word", numbers: "method", conundrum: "guess"}[current_section]
@@ -139,6 +166,7 @@ function pause_clock() {
     $id("clock").pause()
     if (clock_frame) cancelAnimationFrame(clock_frame)
     clock_frame = null
+    update_main_button()
 }
 
 function stop_clock() {
@@ -151,6 +179,7 @@ function stop_clock() {
     clock_state = "idle"
     show_times_up(false)
     draw_clock(0)
+    update_main_button()
 }
 
 function toggle_muted() {

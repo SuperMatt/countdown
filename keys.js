@@ -14,7 +14,8 @@ document.addEventListener("keydown", function(e) {
     if (k == " ") {
         // Don't let a focused button also get "clicked" by the space bar
         if (document.activeElement && document.activeElement.blur) document.activeElement.blur()
-        countdown()
+        // GO or Stop; never Clear, so a stray space can't wipe the board
+        if (main_button_action() != "clear") main_action()
     }
     else if (k == "r") reset()
     else if (k == "f") toggle_fullscreen()

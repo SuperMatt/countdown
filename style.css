@@ -143,11 +143,13 @@ body {
 }
 .btn:hover:not([disabled]) { border-color: var(--ink); }
 .btn.on { background: var(--btn-on-bg); color: var(--btn-on-ink); border-color: var(--btn-on-bg); }
-.btn.go { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); padding-inline: 1.8em; }
+.btn.main { min-width: 7.5em; }
+.btn.go { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.stop { background: var(--bad); color: var(--bg-solid); border-color: var(--bad); }
 .btn[disabled] { opacity: .35; cursor: not-allowed; }
 .btn.big { font-size: clamp(18px, 2.2vw, 28px); min-width: 7.5em; }
 .btn.num-pick { min-width: 3.2em; }
-[data-style="quiz"] .btn.go { box-shadow: 4px 4px 0 #161616; }
+[data-style="quiz"] .btn.main { box-shadow: 4px 4px 0 #161616; }
 [data-style="led"] .btn.on { border-color: var(--accent); }
 .btn:focus-visible, .chip:focus-visible, input:focus-visible, .keys a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
