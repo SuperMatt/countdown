@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Street Countdown Styles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Archivo:wght@500;700;900&family=Permanent+Marker&family=Rubik:wght@500;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Shell: a quiet neutral frame so the four themes carry the colour. Layout: one column of full-width theme specimens. */
+  --shell-bg: #f3f4f6;
+  --shell-ink: #1d2230;
+  --shell-muted: #5b6273;
+  --shell-line: #d7dae1;
+  --shell-accent: #2846d6;
+  --font-shell: "IBM Plex Sans", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --shell-bg: #14161c; --shell-ink: #e7e9ee; --shell-muted: #9aa1b2; --shell-line: #2b2f3a; --shell-accent: #8ea2ff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --shell-bg: #14161c; --shell-ink: #e7e9ee; --shell-muted: #9aa1b2; --shell-line: #2b2f3a; --shell-accent: #8ea2ff;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--shell-bg); color: var(--shell-ink); font-family: var(--font-shell); line-height: 1.5; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; display: grid; gap: 40px; }
+header h1 { font-size: 28px; margin: 0 0 6px; text-wrap: balance; }
+header p { margin: 0; color: var(--shell-muted); max-width: 65ch; }
+.option { display: grid; gap: 12px; }
+.option-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.option-head .letter { font-weight: 600; color: var(--shell-accent); font-size: 14px; letter-spacing: .08em; }
+.option-head h2 { margin: 0; font-size: 22px; }
+.option-head p { margin: 0; color: var(--shell-muted); flex-basis: 100%; max-width: 70ch; }
+
+/* ---------- Shared specimen structure ---------- */
+.app { --tile: clamp(30px, 7.4vw, 60px); border-radius: 10px; overflow: hidden; padding: clamp(16px, 3vw, 28px); display: grid; gap: 18px; background: var(--bg); color: var(--ink); font-family: var(--body); }
+.app .top { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.app .brand { font-family: var(--display); font-size: clamp(26px, 5vw, 44px); line-height: 1; margin: 0; }
+.app .clock { width: clamp(64px, 12vw, 96px); height: auto; flex: none; }
+.app .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.app .spacer { flex: 1; }
+.app button { font: inherit; cursor: pointer; }
+.app .btn { padding: 8px 16px; border: 2px solid var(--btn-line); background: transparent; color: var(--ink); font-family: var(--body); font-weight: 700; font-size: 15px; border-radius: var(--radius); }
+.app .btn.on { background: var(--btn-on-bg); color: var(--btn-on-ink); border-color: var(--btn-on-bg); }
+.app .btn.go { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); padding: 8px 26px; }
+.app .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.app .label { font-size: 13px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+.app .board { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.app .board .break { flex-basis: 100%; height: 0; }
+.app .tile { width: var(--tile); height: var(--tile); display: grid; place-items: center; font-family: var(--tile-font); font-size: calc(var(--tile) * .58); line-height: 1; background: var(--tile-bg); color: var(--tile-ink); border-radius: var(--tile-radius); }
+.app .tile.num { width: calc(var(--tile) * 1.35); font-size: calc(var(--tile) * .46); font-variant-numeric: tabular-nums; }
+.app .pickers { display: flex; justify-content: center; gap: 10px; margin-bottom: 12px; }
+.app .pickers .btn { min-width: 130px; }
+.app .answers { display: grid; gap: 4px; font-size: 15px; }
+.app .answers b { font-family: var(--display); font-weight: normal; letter-spacing: .04em; }
+.app .answers .len { color: var(--muted); display: inline-block; min-width: 5.5em; }
+.app .numrow { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; }
+.app .target { font-family: var(--tile-font); font-size: calc(var(--tile) * .95); padding: 4px 22px; background: var(--target-bg); color: var(--target-ink); border-radius: var(--tile-radius); font-variant-numeric: tabular-nums; line-height: 1.15; }
+.app .steps { margin: 0; padding-left: 1.4em; font-family: var(--body); font-variant-numeric: tabular-nums; }
+.app .panel { border-top: var(--rule); padding-top: 16px; }
+@media (max-width: 560px) { .app .numrow { grid-template-columns: 1fr; justify-items: center; } }
+
+/* ---------- A: Studio Blue ---------- */
+.t-studio {
+  --bg: radial-gradient(120% 90% at 50% 0%, #1d3fb8 0%, #0b1a57 55%, #060f33 100%);
+  --ink: #ffffff; --muted: #9fb3ff; --accent: #ffc83d; --accent-ink: #1a1400;
+  --btn-line: rgba(255,255,255,.35); --btn-on-bg: #ffffff; --btn-on-ink: #0b1a57;
+  --display: "Archivo", sans-serif; --body: "Archivo", sans-serif; --tile-font: "Archivo", sans-serif;
+  --tile-bg: linear-gradient(180deg, #3d68ff 0%, #1d3fd6 100%); --tile-ink: #fff; --tile-radius: 6px;
+  --target-bg: #050c2b; --target-ink: #ffc83d; --radius: 999px; --rule: 1px solid rgba(255,255,255,.15);
+  --clock-face: #f6f7fb; --clock-sweep: #ffc83d; --clock-ink: #0b1a57;
+}
+.t-studio .brand { font-weight: 900; letter-spacing: -.02em; }
+.t-studio .tile { font-weight: 900; box-shadow: inset 0 0 0 2px rgba(255,255,255,.35), 0 4px 0 #0a1f73, 0 6px 14px rgba(0,0,0,.35); text-shadow: 0 2px 0 rgba(0,0,0,.25); }
+.t-studio .target { box-shadow: inset 0 0 0 2px #ffc83d; font-weight: 900; }
+
+/* ---------- B: Chalk Street ---------- */
+.t-chalk {
+  --bg: radial-gradient(circle at 20% 30%, rgba(255,255,255,.035) 0 2px, transparent 3px) 0 0/23px 19px, radial-gradient(circle at 70% 60%, rgba(0,0,0,.25) 0 1.5px, transparent 2.5px) 0 0/17px 13px, #34373a;
+  --ink: #f4f1e8; --muted: #b9b6ab; --accent: #f6c400; --accent-ink: #1b1b1b;
+  --btn-line: rgba(244,241,232,.55); --btn-on-bg: #f4f1e8; --btn-on-ink: #2b2d30;
+  --display: "Permanent Marker", cursive; --body: "Rubik", sans-serif; --tile-font: "Permanent Marker", cursive;
+  --tile-bg: transparent; --tile-ink: #f4f1e8; --tile-radius: 5px 9px 6px 8px;
+  --target-bg: transparent; --target-ink: #f6c400; --radius: 3px; --rule: 4px double #f6c400;
+  --clock-face: #f4f1e8; --clock-sweep: #f6c400; --clock-ink: #2b2d30;
+}
+.t-chalk .tile { border: 3px solid rgba(244,241,232,.85); }
+.t-chalk .tile:nth-child(3n) { transform: rotate(-2deg); }
+.t-chalk .tile:nth-child(4n+1) { transform: rotate(1.5deg); }
+.t-chalk .target { border: 3px dashed #f6c400; }
+.t-chalk .brand { transform: rotate(-1.5deg); }
+.t-chalk .btn.go { box-shadow: 4px 4px 0 #1b1b1b; }
+
+/* ---------- C: Quiz Sheet ---------- */
+.t-paper {
+  --bg: linear-gradient(#dfe8f5 1px, transparent 1px) 0 0/22px 22px, linear-gradient(90deg, #dfe8f5 1px, transparent 1px) 0 0/22px 22px, #fdfdfb;
+  --ink: #161616; --muted: #6a6a6a; --accent: #e3321c; --accent-ink: #fff;
+  --btn-line: #161616; --btn-on-bg: #161616; --btn-on-ink: #fff;
+  --display: "Bricolage Grotesque", sans-serif; --body: "Bricolage Grotesque", sans-serif; --tile-font: "Bricolage Grotesque", sans-serif;
+  --tile-bg: #161616; --tile-ink: #fff; --tile-radius: 2px;
+  --target-bg: #e3321c; --target-ink: #fff; --radius: 0; --rule: 2px solid #161616;
+  --clock-face: #fff; --clock-sweep: #e3321c; --clock-ink: #161616;
+}
+.t-paper .brand, .t-paper .tile, .t-paper .target { font-weight: 800; }
+.t-paper .brand { letter-spacing: -.03em; }
+.t-paper .tile { box-shadow: 3px 3px 0 #e3321c; }
+.t-paper .clock circle.face { stroke: #161616; stroke-width: 3; }
+
+/* ---------- D: Amber LED ---------- */
+.t-led {
+  --bg: repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px), #0e0b07;
+  --ink: #ffcf6b; --muted: #a07a33; --accent: #ffb000; --accent-ink: #120c02;
+  --btn-line: #6b4a12; --btn-on-bg: #3a2708; --btn-on-ink: #ffcf6b;
+  --display: "VT323", monospace; --body: "Share Tech Mono", monospace; --tile-font: "VT323", monospace;
+  --tile-bg: #1b1309; --tile-ink: #ffb000; --tile-radius: 3px;
+  --target-bg: #1b1309; --target-ink: #ff6a2a; --radius: 3px; --rule: 1px dashed #6b4a12;
+  --clock-face: #1b1309; --clock-sweep: #ffb000; --clock-ink: #ffcf6b;
+}
+.t-led .brand { font-size: clamp(34px, 6.5vw, 58px); text-shadow: 0 0 12px rgba(255,176,0,.55); }
+.t-led .tile, .t-led .target { box-shadow: inset 0 0 0 1px #4a3310, inset 0 0 18px rgba(255,140,0,.12); text-shadow: 0 0 10px rgba(255,176,0,.75); font-size: calc(var(--tile) * .78); }
+.t-led .tile.num { font-size: calc(var(--tile) * .62); }
+.t-led .target { font-size: calc(var(--tile) * 1.15); text-shadow: 0 0 12px rgba(255,106,42,.8); }
+.t-led .btn.on { border-color: #ffb000; }
+.t-led .clock circle.face { stroke: #6b4a12; stroke-width: 2; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .app .clock .hand { transition: transform .3s; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>Street Countdown: pick a style</h1>
+    <p>Four directions for the site, each shown on the real screens: the letters board in Street Countdown mode, the answers, the numbers round and the solver. They all keep the current layout, so whichever you pick is a stylesheet swap plus the new clock.</p>
+  </header>
+  <div id="options"></div>
+</main>
+
+<script>
+var themes = [
+  {cls: "t-studio", letter: "A", name: "Studio Blue",
+   desc: "The current blue tiles, done properly: bevelled tiles with depth, a deep blue spotlight background, white type and a gold GO button and target. The safest upgrade."},
+  {cls: "t-chalk", letter: "B", name: "Chalk Street",
+   desc: "Leans into the street part. Chalk outlines drawn on tarmac, hand-lettered tiles that sit slightly crooked, and yellow road-marking accents. The most character, and it suits the 18-letter mode."},
+  {cls: "t-paper", letter: "C", name: "Quiz Sheet",
+   desc: "A light theme, like a pub quiz answer sheet: graph-paper background, solid black tiles with a red offset shadow, red target. Easiest to read on a projector or TV in a bright room."},
+  {cls: "t-led", letter: "D", name: "Amber LED",
+   desc: "A retro dot-matrix scoreboard: glowing amber tiles, scanlines and a monospace readout. Looks great in a dark room."}
+]
+
+var letters = "ETAOINSHRDLUCMWFGP".split("")
+var nums = [100, 75, 50, 25, 6, 3]
+
+// 30-second clock face: sweep from 12 o'clock to the elapsed second
+function clock(elapsed) {
+  var a = elapsed / 60 * 2 * Math.PI
+  var x = 50 + 44 * Math.sin(a), y = 50 - 44 * Math.cos(a)
+  var ticks = ""
+  for (var i = 0; i < 60; i += 5) {
+    var t = i / 60 * 2 * Math.PI
+    ticks += '<line x1="' + (50 + 38 * Math.sin(t)).toFixed(1) + '" y1="' + (50 - 38 * Math.cos(t)).toFixed(1) +
+             '" x2="' + (50 + 44 * Math.sin(t)).toFixed(1) + '" y2="' + (50 - 44 * Math.cos(t)).toFixed(1) +
+             '" stroke="var(--clock-ink)" stroke-width="' + (i % 15 ? 1.5 : 3) + '"/>'
+  }
+  return '<svg class="clock" viewBox="0 0 100 100" role="img" aria-label="Countdown clock, ' + (30 - elapsed) + ' seconds left">' +
+    '<circle class="face" cx="50" cy="50" r="47" fill="var(--clock-face)"/>' +
+    '<path d="M50 50 L50 6 A44 44 0 0 1 ' + x.toFixed(1) + ' ' + y.toFixed(1) + ' Z" fill="var(--clock-sweep)" opacity=".85"/>' +
+    ticks +
+    '<line class="hand" x1="50" y1="50" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="var(--clock-ink)" stroke-width="3.5" stroke-linecap="round"/>' +
+    '<circle cx="50" cy="50" r="4" fill="var(--clock-ink)"/></svg>'
+}
+
+function specimen(t) {
+  var tiles = letters.map(function(l, i) {
+    return (i == 9 ? '<span class="break"></span>' : '') + '<span class="tile">' + l + '</span>'
+  }).join("")
+  var numtiles = nums.map(function(n) { return '<span class="tile num">' + n + '</span>' }).join("")
+  return '<section class="option" id="' + t.cls.slice(2) + '">' +
+    '<div class="option-head"><span class="letter">OPTION ' + t.letter + '</span><h2>' + t.name + '</h2><p>' + t.desc + '</p></div>' +
+    '<div class="app ' + t.cls + '">' +
+      '<div class="top"><h3 class="brand">Street Countdown</h3>' + clock(19) + '</div>' +
+      '<div class="controls">' +
+        '<button class="btn go">GO!</button><button class="btn">Reset</button><span class="spacer"></span>' +
+        '<button class="btn on">Letters</button><button class="btn">Numbers</button>' +
+      '</div>' +
+      '<div class="controls"><button class="btn">Classic · 9</button><button class="btn on">Street · 18</button></div>' +
+      '<div><div class="pickers"><button class="btn">Vowel</button><button class="btn">Consonant</button></div>' +
+        '<div class="board">' + tiles + '</div></div>' +
+      '<div class="panel answers"><div class="label">Answers</div>' +
+        '<div><span class="len">12 letters</span><b>HOUSEWARMING · THUNDERCLAPS · UPHOLSTERING</b></div>' +
+        '<div><span class="len">11 letters</span><b>ATMOSPHERIC · CENTRIFUGAL · DRAGONFLIES</b></div>' +
+      '</div>' +
+      '<div class="panel"><div class="label">Numbers</div><div class="numrow">' +
+        '<div class="board">' + numtiles + '</div><div class="target">952</div></div></div>' +
+      '<div class="panel"><div class="label">Solution · exact</div><ol class="steps">' +
+        '<li>100 + 6 = 106</li><li>75 × 3 = 225</li><li>225 × 106 = 23850</li><li>23850 − 50 = 23800</li><li>23800 ÷ 25 = 952</li></ol></div>' +
+    '</div></section>'
+}
+
+document.getElementById("options").innerHTML = themes.map(specimen).join("")
+document.getElementById("options").style.display = "grid"
+document.getElementById("options").style.gap = "48px"
+</script>
+</body>

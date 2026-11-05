@@ -1,29 +1,45 @@
-<html>
+<!DOCTYPE html>
+<html lang="en-GB">
     <head>
         <title>Street Countdown - 01189998819991197253.org</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta property="og:image" content="http://www.01189998819991197253.org/milk.jpg" />
 		<meta property="og:description" content="Street Countdown - 01189998819991197253.org: Providing all your street countdown needs when playing safely in your home">
 		<meta property="og:url" content="http://www.01189998819991197253.org">
 		<meta property="og:title" content="Street Countdown">
 		<meta property="og:type" content="website">
 		<meta property="fb:app_id" content="316261905539566">
-        <meta charset="UTF-8">
         <script>
-            // Christmas mode: automatic in December. Override with ?christmas=1 or ?christmas=0
             (function() {
-                var p = new URLSearchParams(location.search).get("christmas")
+                var params = new URLSearchParams(location.search)
+                var root = document.documentElement
+
+                // Christmas mode: automatic in December. Override with ?christmas=1 or ?christmas=0
+                var p = params.get("christmas")
                 var on = p === null ? new Date().getMonth() === 11 : (p !== "0" && p !== "false")
-                if (on) document.documentElement.className += " christmas"
+                if (on) root.classList.add("christmas")
+
+                // Style: ?theme=studio|quiz|led, else last choice, else studio
+                var styles = ["studio", "quiz", "led"]
+                var s = params.get("theme")
+                try {
+                    if (styles.indexOf(s) >= 0) localStorage.setItem("style", s)
+                    else s = localStorage.getItem("style")
+                } catch (e) {}
+                root.dataset.style = styles.indexOf(s) >= 0 ? s : "studio"
             })()
         </script>
         <link rel="preload" href="clock.mp3" as="fetch" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=VT323&family=Share+Tech+Mono&display=swap">
         <link rel="stylesheet" href="style.css">
-        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-        <script src="functions.js"></script>
-        <script src="letters.js"></script>
-        <script src="numbers.js"></script>
-        <script src="audio.js"></script>
+        <script src="functions.js" defer></script>
+        <script src="letters.js" defer></script>
+        <script src="numbers.js" defer></script>
+        <script src="conundrum.js" defer></script>
+        <script src="audio.js" defer></script>
+        <script src="keys.js" defer></script>
     </head>
     <body>
 <script>
@@ -44,104 +60,117 @@
      fjs.parentNode.insertBefore(js, fjs);
    }(document, 'script', 'facebook-jssdk'));
 </script>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <h1 class="not-christmas">Street Countdown</h1>
-                    <img class="christmas-only" src="logo.png" width="500px" alt="Street Countdown">
-                </div>
-            </div>
-			<div class="row" style="padding-top: 5px; padding-bottom: 5px">
-				<div class="col-md-12">
-					<div class="fb-like" data-href="http://www.01189998819991197253.org" data-width="450" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="true"></div>
-				</div>
-			</div>
-            <div class="row">
-                <div class="col-md-4">
-                    <audio id="clock" preload="auto">
-                        <source src="clock.mp3" type="audio/mpeg">
-                    </audio>
-                    <button class="btn btn-primary btn-lg" onclick="countdown()">GO!</button>
-                    <button class="btn btn-warning btn-lg" onclick="reset()">Clear Boards and Reset</button>
-                </div>
-                <div class="col-md-8">
-                    <button class="btn btn-default btn-lg" onclick="section('l')">Letters</button>
-                    <button class="btn btn-default btn-lg" onclick="section('n')">Numbers</button>
-                </div>
-            </div>
-            <div id="letters" hidden>
-                <div class="row">
-                    <div class="col-md-12">
-                        <h2>Letters</h2>
+        <audio id="clock" preload="auto">
+            <source src="clock.mp3" type="audio/mpeg">
+        </audio>
+
+        <div class="app">
+            <header class="top">
+                <div class="brand-wrap">
+                    <h1 class="brand">Street Countdown<img class="hat" src="hat.png" alt=""></h1>
+                    <div class="styles" role="group" aria-label="Style">
+                        <span class="styles-label">Style</span>
+                        <button class="chip" data-style-btn="studio" onclick="set_style('studio')">Studio Blue</button>
+                        <button class="chip" data-style-btn="quiz" onclick="set_style('quiz')">Quiz Sheet</button>
+                        <button class="chip" data-style-btn="led" onclick="set_style('led')">Amber LED</button>
                     </div>
+                    <div class="fb fb-like" data-href="http://www.01189998819991197253.org" data-width="450" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="true"></div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-default" id="mode-classic" onclick="set_mode('classic')">Classic (9 letters)</button>
-                            <button class="btn btn-default" id="mode-street" onclick="set_mode('street')">Street Countdown (18 letters)</button>
-                        </div>
-                    </div>
+                <svg class="clock" id="clock-face" viewBox="0 0 100 100" role="img" aria-label="Countdown clock">
+                    <circle class="face" cx="50" cy="50" r="47"/>
+                    <path class="sweep" id="clock-sweep" d=""/>
+                    <g id="clock-ticks"></g>
+                    <line class="hand" id="clock-hand" x1="50" y1="50" x2="50" y2="8"/>
+                    <circle class="pin" cx="50" cy="50" r="4"/>
+                </svg>
+            </header>
+
+            <nav class="controls">
+                <button class="btn go" onclick="countdown()">GO!</button>
+                <button class="btn" onclick="reset()">Clear Boards and Reset</button>
+                <span class="spacer"></span>
+                <button class="btn tab" data-tab="letters" onclick="section('letters')">Letters</button>
+                <button class="btn tab" data-tab="numbers" onclick="section('numbers')">Numbers</button>
+                <button class="btn tab" data-tab="conundrum" onclick="section('conundrum')">Conundrum</button>
+                <button class="btn" id="fullscreen-btn" onclick="toggle_fullscreen()">Fullscreen</button>
+            </nav>
+
+            <section id="letters" class="round">
+                <div class="controls center" role="group" aria-label="Letters mode">
+                    <button class="btn" id="mode-classic" onclick="set_mode('classic')">Classic · 9 letters</button>
+                    <button class="btn" id="mode-street" onclick="set_mode('street')">Street Countdown · 18 letters</button>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">Select vowels or consonants</div>
+                <div class="pickers">
+                    <button class="btn big" id="vowels" onclick="letter('v')">Vowel</button>
+                    <button class="btn big" id="consonants" onclick="letter('c')">Consonant</button>
                 </div>
-                <div class="row">
-                    <div class="col-md-3 col-md-offset-3">
-                        <button class="btn btn-default btn-full" id="vowels" onclick="letter('v')">Vowel</button>
-                    </div>
-                    <div class="col-md-3 col-md-offset">
-                        <button class="btn btn-default btn-full" id="consonants" onclick="letter('c')">Consonant</button>
-                    </div>
+                <div class="board" id="letter-stage"></div>
+                <div class="actions">
+                    <form class="check" onsubmit="check_word(event)">
+                        <label for="check-word" class="sr-only">Check a word</label>
+                        <input id="check-word" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Check a word">
+                        <button class="btn" type="submit">Check</button>
+                    </form>
+                    <span class="result" id="check-result" aria-live="polite"></span>
+                    <span class="spacer"></span>
+                    <button class="btn" id="show-words" onclick="show_words()">Answers</button>
                 </div>
-                <div class="row">
-                    <div class="col-md-12 stage" id="letter-stage">
-                    </div>
+                <div class="panel answers" id="words" aria-live="polite"></div>
+            </section>
+
+            <section id="numbers" class="round" hidden>
+                <div class="label">How many big numbers?</div>
+                <div class="pickers">
+                    <button class="btn big num-pick" onclick="random_number(0)">0</button>
+                    <button class="btn big num-pick" onclick="random_number(1)">1</button>
+                    <button class="btn big num-pick" onclick="random_number(2)">2</button>
+                    <button class="btn big num-pick" onclick="random_number(3)">3</button>
+                    <button class="btn big num-pick" onclick="random_number(4)">4</button>
                 </div>
-                <div class="row">
-                    <div class="col-md-3 col-md-offset-9">
-                        <button class="btn btn-info btn-full" id="show-words" onclick="show_words()">Answers</button>
-                    </div>
+                <div class="numrow">
+                    <div class="board" id="stage"></div>
+                    <div class="target" id="target">&nbsp;</div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12 answers" id="words">
-                    </div>
+                <div class="actions">
+                    <button class="btn" id="generate-btn" onclick="generate()" disabled>Generate target</button>
+                    <span class="spacer"></span>
+                    <button class="btn" id="solve-btn" onclick="show_solution()" disabled>Solution</button>
+                    <button class="btn" id="next-step-btn" onclick="next_step()" hidden>Next step</button>
+                    <button class="btn" id="all-steps-btn" onclick="all_steps()" hidden>Show all</button>
                 </div>
-            </div>
-            <div id="numbers" hidden>
-                <div class="row">
-                    <div class="col-md-12">
-                        <h2>Numbers</h2>
-                    </div>
+                <div class="panel" id="solution" aria-live="polite"></div>
+            </section>
+
+            <section id="conundrum" class="round" hidden>
+                <div class="controls center">
+                    <button class="btn big" onclick="new_conundrum()">New conundrum</button>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">Select number of big numbers</div>
+                <div class="board" id="conundrum-stage"></div>
+                <div class="actions">
+                    <form class="check" onsubmit="guess_conundrum(event)">
+                        <label for="guess" class="sr-only">Your guess</label>
+                        <input id="guess" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Your guess">
+                        <button class="btn" type="submit">Guess</button>
+                    </form>
+                    <span class="result" id="guess-result" aria-live="polite"></span>
+                    <span class="spacer"></span>
+                    <button class="btn" id="reveal-btn" onclick="reveal_conundrum()" disabled>Reveal</button>
                 </div>
-                <div class="row">
-                    <div class="col-md-3 ">
-                        <a class="btn btn-default btn-full" href="javascript:random_number(1)">1</a>
-                    </div>
-                    <div class="col-md-3 ">
-                        <a class="btn btn-default btn-full" href="javascript:random_number(2)">2</a>
-                    </div>
-                    <div class="col-md-3 ">
-                        <a class="btn btn-default btn-full" href="javascript:random_number(3)">3</a>
-                    </div>
-                    <div class="col-md-3 ">
-                        <a class="btn btn-default btn-full" href="javascript:random_number(4)">4</a>
-                    </div>
-                </div>
-                <div id="stage">
-                </div>
-                <div class="row">
-                    <div class="col-md-6 col-md-offset-3" id="target">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12 answers" id="solution">
-                    </div>
-                </div>
-            </div>
+                <div class="panel" id="conundrum-answer"></div>
+            </section>
+
+            <footer class="keys">
+                <span><kbd>Space</kbd> GO</span>
+                <span><kbd>R</kbd> reset</span>
+                <span><kbd>L</kbd> <kbd>N</kbd> <kbd>K</kbd> letters / numbers / conundrum</span>
+                <span><kbd>V</kbd> <kbd>C</kbd> vowel / consonant</span>
+                <span><kbd>0</kbd>–<kbd>4</kbd> big numbers</span>
+                <span><kbd>T</kbd> target / new conundrum</span>
+                <span><kbd>A</kbd> answers / next step / reveal</span>
+                <span><kbd>F</kbd> fullscreen</span>
+                <span class="spacer"></span>
+                <a href="classic/">Original version</a>
+            </footer>
         </div>
     </body>
 </html>

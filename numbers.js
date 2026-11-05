@@ -1,4 +1,5 @@
-var small = [1,2,3,4,5,6,7,8,9,10]
+// Two of each small number, like the show
+var small = [1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10]
 var large = [25, 50, 75, 100]
 
 var numbers_points = {
@@ -15,42 +16,46 @@ var numbers_points = {
     "10": 5
 }
 
-shuff_large = []
-shuff_small = []
+var shuff_large = []
+var shuff_small = []
 var board_numbers = []
 var target = null
+var solution = null
+var steps_shown = 0
 
-function generate() {
-    number = Math.floor(Math.random()* 898 ) + 101
-    target = number
-    $("#target").html("<div class=\"tile tile-big\"><div class=\"char\">" + number + "</div></div>")
-    $("#solution").html("")
-    $("#solve-btn").attr("disabled", false)
+function reset_numbers() {
+    shuff_large = shuffle(large)
+    shuff_small = shuffle(small)
+    board_numbers = []
+    target = null
+    $id("stage").innerHTML = tiles_html(["", "", "", "", "", ""], "num")
+    $id("target").innerHTML = "&nbsp;"
+    $id("generate-btn").disabled = true
+    clear_solution()
+}
+
+function clear_solution() {
+    solution = null
+    steps_shown = 0
+    $id("solution").innerHTML = ""
+    $id("solve-btn").disabled = target === null
+    $id("solve-btn").hidden = false
+    $id("next-step-btn").hidden = true
+    $id("all-steps-btn").hidden = true
 }
 
 function random_number(big) {
-    var stagehtml = "<div class=\"row\"><div class=\"col-md-12 stage\">"
-    sm = 6 - big
-    board_numbers = []
+    reset_numbers()
+    board_numbers = shuff_large.slice(0, big).concat(shuff_small.slice(0, 6 - big))
+    $id("stage").innerHTML = tiles_html(board_numbers.map(String), "num")
+    $id("generate-btn").disabled = false
+}
 
-    for (i=0; i < big; i ++) {
-        board_numbers.push(shuff_large[i])
-        stagehtml += '<div class="tile"><div class="char">' + shuff_large[i] + '</div></div>'
-    }
-
-    for (i=0; i < sm; i ++) {
-        board_numbers.push(shuff_small[i])
-        stagehtml += '<div class="tile"><div class="char">' + shuff_small[i] + '</div></div>'
-    }
-
-    stagehtml += '</div></div><div class="row">'
-    stagehtml += '<div class="col-md-3 stage"><a class="btn btn-default btn-full" href="javascript:generate()">Generate</a></div>'
-    stagehtml += '<div class="col-md-3 col-md-offset-6 stage"><button class="btn btn-info btn-full" id="solve-btn" onclick="show_solution()" disabled>Solution</button></div>'
-    stagehtml += '</div>'
-    $('#stage').html(stagehtml)
-    $("#target").html("")
-    $("#solution").html("")
-    target = null
+function generate() {
+    if (board_numbers.length == 0) return
+    target = Math.floor(Math.random() * 899) + 101  // 101 to 999
+    $id("target").textContent = target
+    clear_solution()
 }
 
 // Exhaustive search: closest result to target, using the fewest steps.
@@ -74,7 +79,10 @@ function solve_numbers(nums, goal) {
             for (var j = i + 1; j < list.length; j++) {
                 var a = Math.max(list[i], list[j])
                 var b = Math.min(list[i], list[j])
-                var rest = list.filter(function(_, k) { return k != i && k != j })
+                var rest = []
+                for (var k = 0; k < list.length; k++) {
+                    if (k != i && k != j) rest.push(list[k])
+                }
                 var results = [[a + b, "+"]]
                 if (b > 1) results.push([a * b, "×"])
                 if (a != b && a - b != b) results.push([a - b, "−"])
@@ -84,7 +92,11 @@ function solve_numbers(nums, goal) {
                     var v = results[r][0]
                     steps.push(a + " " + results[r][1] + " " + b + " = " + v)
                     consider(v)
-                    if (rest.length > 0) search(rest.concat([v]))
+                    if (rest.length > 0) {
+                        rest.push(v)
+                        search(rest)
+                        rest.pop()
+                    }
                     steps.pop()
                 }
             }
@@ -96,21 +108,50 @@ function solve_numbers(nums, goal) {
     return best
 }
 
-function show_solution() {
-    if (target === null || board_numbers.length == 0) return
-    var s = solve_numbers(board_numbers, target)
+function render_solution() {
+    var s = solution
     var html = ""
     if (s.diff == 0) {
-        html += "<h3>Exact solution for " + target + "</h3>"
+        html += "<h3>Exact solution for " + target + " in " + s.steps.length + " step" + (s.steps.length == 1 ? "" : "s") + "</h3>"
     } else {
         html += "<h3>No exact solution. Closest is " + s.value + " (" + s.diff + " away)</h3>"
     }
     if (s.steps.length == 0) {
         html += "<p>" + s.value + " is already on the board!</p>"
     } else {
-        html += "<ol>"
-        s.steps.forEach(function(st) { html += "<li>" + st + "</li>" })
+        html += '<ol class="steps">'
+        s.steps.forEach(function(st, i) {
+            html += i < steps_shown ? "<li>" + st + "</li>" : '<li class="hidden-step">&nbsp;</li>'
+        })
         html += "</ol>"
     }
-    $("#solution").html(html)
+    $id("solution").innerHTML = html
+    var more = steps_shown < s.steps.length
+    $id("solve-btn").hidden = true
+    $id("next-step-btn").hidden = !more
+    $id("all-steps-btn").hidden = !more
+}
+
+// First press: say whether it's exact. Then reveal one step at a time.
+function show_solution() {
+    if (target === null || board_numbers.length == 0) return
+    if (solution) return next_step()
+    $id("solution").innerHTML = '<p class="muted">Thinking&hellip;</p>'
+    setTimeout(function() {
+        solution = solve_numbers(board_numbers, target)
+        steps_shown = 0
+        render_solution()
+    }, 20)
+}
+
+function next_step() {
+    if (!solution) return
+    steps_shown = Math.min(steps_shown + 1, solution.steps.length)
+    render_solution()
+}
+
+function all_steps() {
+    if (!solution) return
+    steps_shown = solution.steps.length
+    render_solution()
 }

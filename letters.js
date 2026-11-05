@@ -45,33 +45,26 @@ var numcons = 0
 var board_letters = []
 
 var words = null
+var word_set = null
 var words_loading = null
 
-$( document ).ready(function() {
-
+function init_letters() {
     for (var l in vowels) {
-        numvowel = vowels[l]
-        for (i = 0; i < numvowel; i++) {
-            allvowels.push(l)
-        }
+        for (var i = 0; i < vowels[l]; i++) allvowels.push(l)
     }
-
     for (var l in consonants) {
-        numcon = consonants[l]
-        for (i = 0; i < numcon; i++) {
-            allcons.push(l)
-        }
+        for (var i = 0; i < consonants[l]; i++) allcons.push(l)
     }
+}
 
-    // ?street=1 starts in Street Countdown mode
-    var p = new URLSearchParams(location.search).get("street")
-    set_mode(p !== null && p !== "0" && p !== "false" ? "street" : "classic")
-});
+function update_mode_buttons() {
+    $id("mode-classic").classList.toggle("on", mode == "classic")
+    $id("mode-street").classList.toggle("on", mode == "street")
+}
 
 function set_mode(m) {
     mode = m
-    $("#mode-classic").toggleClass("active btn-primary", m == "classic")
-    $("#mode-street").toggleClass("active btn-primary", m == "street")
+    update_mode_buttons()
     reset()
 }
 
@@ -79,43 +72,52 @@ function render_tiles() {
     var total = modes[mode].total
     var html = ""
     for (var i = 0; i < total; i++) {
-        if (i > 0 && i % 9 == 0) html += "<br>"
-        html += '<div class="tile"><div class="char" id="t' + i + '">&nbsp;</div></div>'
+        if (i > 0 && i % 9 == 0) html += '<span class="break"></span>'
+        html += '<span class="tile" id="t' + i + '">&nbsp;</span>'
     }
-    $("#letter-stage").html(html)
+    $id("letter-stage").innerHTML = html
+}
+
+function reset_letters() {
+    render_tiles()
+    numvowels = 0
+    numcons = 0
+    board_letters = []
+    allvowels = shuffle(allvowels)
+    allcons = shuffle(allcons)
+    $id("vowels").disabled = false
+    $id("consonants").disabled = false
+    $id("words").innerHTML = ""
+    $id("check-word").value = ""
+    set_result("check-result", "")
 }
 
 function letter(type) {
     var m = modes[mode]
+    var l
     if (board_letters.length >= m.total) return
 
     if (type == "v") {
         if (numvowels >= m.maxvowels) return
         l = allvowels[numvowels]
-        numvowels += 1;
-        if (numvowels == m.maxvowels) {
-            $("#vowels").attr("disabled", true)
-        }
+        numvowels += 1
+        if (numvowels == m.maxvowels) $id("vowels").disabled = true
     }
     else if (type == "c") {
         if (numcons >= m.maxcons) return
         l = allcons[numcons]
-        numcons += 1;
-        if (numcons == m.maxcons) {
-            $("#consonants").attr("disabled", true)
-        }
+        numcons += 1
+        if (numcons == m.maxcons) $id("consonants").disabled = true
     }
 
     board_letters.push(l)
-    totalletters = board_letters.length
 
-    if (totalletters == m.total) {
-        $("#vowels").attr("disabled", true)
-        $("#consonants").attr("disabled", true)
+    if (board_letters.length == m.total) {
+        $id("vowels").disabled = true
+        $id("consonants").disabled = true
     }
 
-    id = "#t" + (totalletters -1)
-    $(id).text(l)
+    $id("t" + (board_letters.length - 1)).textContent = l
 }
 
 // Fetch the dictionary in the background (only once)
@@ -128,6 +130,7 @@ function load_words() {
             })
             .then(function(t) {
                 words = t.split("\n").filter(function(w) { return w.length > 0 })
+                word_set = new Set(words)
                 return words
             })
             .catch(function(e) {
@@ -144,6 +147,17 @@ function letter_counts(s) {
         c[s.charCodeAt(i) - 97]++
     }
     return c
+}
+
+// Letters in word that aren't available on the board ("" if makeable)
+function missing_letters(word, letters) {
+    var c = letter_counts(letters.join("").toLowerCase())
+    var missing = ""
+    for (var j = 0; j < word.length; j++) {
+        var k = word.charCodeAt(j) - 97
+        if (--c[k] < 0) missing += word[j]
+    }
+    return missing
 }
 
 // All dictionary words makeable from the given letters, longest first
@@ -167,16 +181,16 @@ function find_words(letters, dict) {
 
 function show_words() {
     if (board_letters.length == 0) {
-        $("#words").html("<p>Pick some letters first!</p>")
+        $id("words").innerHTML = '<p class="muted">Pick some letters first.</p>'
         return
     }
-    $("#words").html("<p>Thinking...</p>")
+    $id("words").innerHTML = '<p class="muted">Thinking&hellip;</p>'
     var letters = board_letters.slice()
     load_words().then(function(dict) {
         if (letters.join() !== board_letters.join()) return  // board changed meanwhile
         var found = find_words(letters, dict)
         if (found.length == 0) {
-            $("#words").html("<p>No words found. Tough one!</p>")
+            $id("words").innerHTML = '<p class="muted">No words found. Tough one!</p>'
             return
         }
         // Group by length, show the top 3 lengths
@@ -187,16 +201,44 @@ function show_words() {
             }
             groups[groups.length - 1].words.push(w)
         })
-        var html = ""
+        var html = "<h3>Answers</h3>"
         groups.slice(0, 3).forEach(function(g) {
             var shown = g.words.slice(0, 30)
-            html += "<h3>" + g.len + " letters (" + g.words.length + ")</h3><div>"
+            html += '<div class="group"><span class="len">' + g.len + " letters (" + g.words.length + ')</span><div class="group-words">'
             shown.forEach(function(w) { html += '<span class="word">' + escape_html(w) + "</span>" })
             if (g.words.length > shown.length) html += '<span class="word">&hellip;</span>'
-            html += "</div>"
+            html += "</div></div>"
         })
-        $("#words").html(html)
+        $id("words").innerHTML = html
     }).catch(function() {
-        $("#words").html("<p>Couldn't load the dictionary, sorry.</p>")
+        $id("words").innerHTML = '<p class="muted">Couldn\'t load the dictionary. Reload the page and try again.</p>'
+    })
+}
+
+// Word checker: is it in the dictionary, and can it be made from the board?
+function check_word(e) {
+    if (e) e.preventDefault()
+    var w = $id("check-word").value.toLowerCase().replace(/[^a-z]/g, "")
+    if (!w) return
+    var W = w.toUpperCase()
+    if (board_letters.length == 0) {
+        set_result("check-result", "Pick some letters first.", false)
+        return
+    }
+    var missing = missing_letters(w, board_letters)
+    if (missing) {
+        var list = missing.toUpperCase().split("").join(", ")
+        set_result("check-result", "✗ " + W + " isn't on the board (needs " + list + ")", false)
+        return
+    }
+    set_result("check-result", "Checking…")
+    load_words().then(function() {
+        if (word_set.has(w)) {
+            set_result("check-result", "✓ " + W + ": " + w.length + " letters", true)
+        } else {
+            set_result("check-result", "✗ " + W + " isn't in the dictionary", false)
+        }
+    }).catch(function() {
+        set_result("check-result", "Couldn't load the dictionary.", false)
     })
 }
