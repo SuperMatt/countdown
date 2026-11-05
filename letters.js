@@ -123,6 +123,7 @@ function letter(type) {
     }
 
     $id("t" + (board_letters.length - 1)).textContent = l
+    if (board_letters.length == m.total) auto_start()
 }
 
 // Fetch the dictionary in the background (only once)

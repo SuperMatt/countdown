@@ -55,12 +55,16 @@ function store_set(key, value) {
 
 var settings = {
   muted: store_get("muted") == "1",
-  auto_answers: store_get("auto_answers") == "1"
+  auto_answers: store_get("auto_answers") == "1",
+  auto_start: parseInt(store_get("auto_start"), 10) || 0   // seconds of "get ready" pause, 0 = off
 }
+
+var AUTO_START_CHOICES = [0, 3, 5]
 
 function save_settings() {
   store_set("muted", settings.muted ? "1" : "0")
   store_set("auto_answers", settings.auto_answers ? "1" : "0")
+  store_set("auto_start", String(settings.auto_start))
   render_options()
 }
 
@@ -69,6 +73,14 @@ function render_options() {
   $id("opt-sound").textContent = settings.muted ? "Sound off" : "Sound on"
   $id("opt-auto").classList.toggle("on", settings.auto_answers)
   $id("opt-auto").textContent = "Answers at time's up: " + (settings.auto_answers ? "on" : "off")
+  $id("opt-start").classList.toggle("on", settings.auto_start > 0)
+  $id("opt-start").textContent = "Auto-start: " + (settings.auto_start > 0 ? settings.auto_start + "s pause" : "off")
+}
+
+function cycle_auto_start() {
+  var i = AUTO_START_CHOICES.indexOf(settings.auto_start)
+  settings.auto_start = AUTO_START_CHOICES[(i + 1) % AUTO_START_CHOICES.length]
+  save_settings()
 }
 
 function toggle_auto_answers() {

@@ -2,13 +2,6 @@
 
 Ideas for later.
 
-## Start the clock automatically
-
-- Letters: when the last letter is drawn. Numbers: when the target appears.
-- Needs figuring out: on the show there's a pause of a few seconds while the
-  presenter talks before the clock starts. Maybe a short "get ready" delay
-  (3-5 seconds, configurable), or keep GO manual for game nights.
-
 ## Scoring
 
 - Player names and a running scoreboard.

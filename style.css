@@ -247,6 +247,15 @@ body {
     border-radius: var(--radius);
 }
 .clock.flash { animation: pulse .5s 4; }
+.get-ready {
+    font-family: var(--display); font-weight: var(--weight);
+    font-size: clamp(18px, 2vw, 26px);
+    padding: .2em .8em;
+    border: 2px dashed var(--accent); color: var(--accent);
+    border-radius: var(--radius);
+    font-variant-numeric: tabular-nums;
+}
+.get-ready[hidden], .times-up[hidden] { display: none; }
 @keyframes pulse { 50% { opacity: .25; } }
 @media (prefers-reduced-motion: reduce) {
     .clock.flash, .checked-word.flash { animation: none; }

@@ -84,7 +84,35 @@ function time_up() {
     on_time_up()
 }
 
+// Auto-start: when the board is ready, count down a short "get ready" pause
+// (like the presenter talking on the show), then start the clock.
+var ready_timer = null
+
+function auto_start() {
+    if (!settings.auto_start) return
+    cancel_auto_start()
+    var left = settings.auto_start
+    var badge = $id("get-ready")
+    badge.textContent = "Get ready… " + left
+    badge.hidden = false
+    ready_timer = setInterval(function() {
+        left -= 1
+        if (left > 0) {
+            badge.textContent = "Get ready… " + left
+        } else {
+            countdown()
+        }
+    }, 1000)
+}
+
+function cancel_auto_start() {
+    if (ready_timer) clearInterval(ready_timer)
+    ready_timer = null
+    $id("get-ready").hidden = true
+}
+
 function countdown() {
+    cancel_auto_start()
     var audio = $id("clock")
     audio.currentTime = 0
     var p = audio.play()
@@ -114,6 +142,7 @@ function pause_clock() {
 }
 
 function stop_clock() {
+    cancel_auto_start()
     var audio = $id("clock")
     audio.pause()
     audio.currentTime = 0

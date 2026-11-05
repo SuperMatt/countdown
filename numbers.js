@@ -46,6 +46,7 @@ function clear_solution() {
 }
 
 function random_number(big) {
+    cancel_auto_start()
     reset_numbers()
     board_numbers = shuff_large.slice(0, big).concat(shuff_small.slice(0, 6 - big))
     $id("stage").innerHTML = tiles_html(board_numbers.map(String), "num")
@@ -58,6 +59,7 @@ function generate() {
     $id("target").textContent = target
     clear_solution()
     clear_attempts()
+    auto_start()
 }
 
 // Exhaustive search: closest result to target, using the fewest steps.
