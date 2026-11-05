@@ -31,14 +31,17 @@ var consonants = {
 }
 
 // Classic: 9 letters. Street Countdown: 18 letters, limits scaled to match.
+// cap: most copies of one consonant on a board when the repeat cap option is on.
 var modes = {
-    "classic": {total: 9,  maxvowels: 5,  maxcons: 6},
-    "street":  {total: 18, maxvowels: 10, maxcons: 12}
+    "classic": {total: 9,  maxvowels: 5,  maxcons: 6,  cap: 2},
+    "street":  {total: 18, maxvowels: 10, maxcons: 12, cap: 3}
 }
 var mode = "classic"
 
-var allvowels = []
+var allvowels = []      // the full set of tiles
 var allcons = []
+var vowel_pile = []     // shuffled tiles still face down
+var cons_pile = []
 
 var numvowels = 0
 var numcons = 0
@@ -49,6 +52,8 @@ var word_set = null
 var words_loading = null
 
 function init_letters() {
+    allvowels = []
+    allcons = []
     for (var l in vowels) {
         for (var i = 0; i < vowels[l]; i++) allvowels.push(l)
     }
@@ -85,8 +90,11 @@ function reset_letters() {
     numvowels = 0
     numcons = 0
     board_letters = []
-    allvowels = shuffle(allvowels)
-    allcons = shuffle(allcons)
+    // Like the show, the piles can carry over between rounds (option);
+    // reshuffle a full pile when there aren't enough tiles left for a board.
+    var m = modes[mode]
+    if (!settings.carry_piles || vowel_pile.length < m.maxvowels) vowel_pile = shuffle(allvowels.slice())
+    if (!settings.carry_piles || cons_pile.length < m.maxcons) cons_pile = shuffle(allcons.slice())
     $id("vowels").disabled = false
     $id("consonants").disabled = false
     $id("words").innerHTML = ""
@@ -104,13 +112,13 @@ function letter(type) {
 
     if (type == "v") {
         if (numvowels >= m.maxvowels) return
-        l = allvowels[numvowels]
+        l = draw_tile(vowel_pile, null)
         numvowels += 1
         if (numvowels == m.maxvowels) $id("vowels").disabled = true
     }
     else if (type == "c") {
         if (numcons >= m.maxcons) return
-        l = allcons[numcons]
+        l = draw_tile(cons_pile, settings.cap_repeats ? m.cap : null)
         numcons += 1
         if (numcons == m.maxcons) $id("consonants").disabled = true
     }
@@ -124,6 +132,31 @@ function letter(type) {
 
     $id("t" + (board_letters.length - 1)).textContent = l
     if (board_letters.length == m.total) auto_start()
+}
+
+// Take the top tile. With a cap, skip tiles that would put too many of one
+// letter on the board; skipped tiles stay on top for later draws.
+function draw_tile(pile, cap) {
+    var full = pile === vowel_pile ? allvowels : allcons
+    if (pile.length == 0) Array.prototype.push.apply(pile, shuffle(full.slice()))
+    var i = pile.length - 1
+    if (cap) {
+        var counts = {}
+        board_letters.forEach(function(b) { counts[b] = (counts[b] || 0) + 1 })
+        var allowed = function(l) { return (counts[l] || 0) < cap }
+        i = -1
+        for (var j = pile.length - 1; j >= 0; j--) {
+            if (allowed(pile[j])) { i = j; break }
+        }
+        if (i < 0) {
+            // Only capped letters left: put a fresh shuffled set under the pile
+            Array.prototype.unshift.apply(pile, shuffle(full.slice()))
+            for (var j = pile.length - 1; j >= 0; j--) {
+                if (allowed(pile[j])) { i = j; break }
+            }
+        }
+    }
+    return pile.splice(i, 1)[0]
 }
 
 // Fetch the dictionary in the background (only once)

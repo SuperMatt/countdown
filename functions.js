@@ -56,7 +56,9 @@ function store_set(key, value) {
 var settings = {
   muted: store_get("muted") == "1",
   auto_answers: store_get("auto_answers") == "1",
-  auto_start: parseInt(store_get("auto_start"), 10) || 0   // seconds of "get ready" pause, 0 = off
+  auto_start: parseInt(store_get("auto_start"), 10) || 0,  // seconds of "get ready" pause, 0 = off
+  carry_piles: store_get("carry_piles") != "0",   // default on
+  cap_repeats: store_get("cap_repeats") != "0"    // default on
 }
 
 var AUTO_START_CHOICES = [0, 3, 5]
@@ -65,6 +67,8 @@ function save_settings() {
   store_set("muted", settings.muted ? "1" : "0")
   store_set("auto_answers", settings.auto_answers ? "1" : "0")
   store_set("auto_start", String(settings.auto_start))
+  store_set("carry_piles", settings.carry_piles ? "1" : "0")
+  store_set("cap_repeats", settings.cap_repeats ? "1" : "0")
   render_options()
 }
 
@@ -73,8 +77,22 @@ function render_options() {
   $id("opt-sound").textContent = settings.muted ? "Sound off" : "Sound on"
   $id("opt-auto").classList.toggle("on", settings.auto_answers)
   $id("opt-auto").textContent = "Answers at time's up: " + (settings.auto_answers ? "on" : "off")
+  $id("opt-piles").classList.toggle("on", settings.carry_piles)
+  $id("opt-piles").textContent = "Piles carry over: " + (settings.carry_piles ? "on" : "off")
+  $id("opt-cap").classList.toggle("on", settings.cap_repeats)
+  $id("opt-cap").textContent = "Repeat cap: " + (settings.cap_repeats ? "on" : "off")
   $id("opt-start").classList.toggle("on", settings.auto_start > 0)
   $id("opt-start").textContent = "Auto-start: " + (settings.auto_start > 0 ? settings.auto_start + "s pause" : "off")
+}
+
+function toggle_carry_piles() {
+  settings.carry_piles = !settings.carry_piles
+  save_settings()
+}
+
+function toggle_cap_repeats() {
+  settings.cap_repeats = !settings.cap_repeats
+  save_settings()
 }
 
 function cycle_auto_start() {
