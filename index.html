@@ -108,7 +108,7 @@
                 <div class="actions">
                     <form class="check" onsubmit="check_word(event)">
                         <label for="check-word" class="sr-only">Check a word</label>
-                        <input id="check-word" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Check a word">
+                        <input id="check-word" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Check a word">
                         <button class="btn" type="submit">Check</button>
                     </form>
                     <span class="result" id="check-result" aria-live="polite"></span>
@@ -150,7 +150,7 @@
                 <div class="actions">
                     <form class="check" onsubmit="guess_conundrum(event)">
                         <label for="guess" class="sr-only">Your guess</label>
-                        <input id="guess" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Your guess">
+                        <input id="guess" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Your guess">
                         <button class="btn" type="submit">Guess</button>
                     </form>
                     <span class="result" id="guess-result" aria-live="polite"></span>

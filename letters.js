@@ -151,15 +151,21 @@ function letter_counts(s) {
     return c
 }
 
-// Letters in word that aren't available on the board ("" if makeable)
+// Why a word can't be made from the board, e.g. "no Z, only one E" ("" if makeable)
 function missing_letters(word, letters) {
-    var c = letter_counts(letters.join("").toLowerCase())
-    var missing = ""
+    var have = letter_counts(letters.join("").toLowerCase())
+    var need = letter_counts(word)
+    var problems = []
+    var seen = {}
     for (var j = 0; j < word.length; j++) {
         var k = word.charCodeAt(j) - 97
-        if (--c[k] < 0) missing += word[j]
+        var L = word[j].toUpperCase()
+        if (seen[L] || need[k] <= have[k]) continue
+        seen[L] = true
+        if (have[k] == 0) problems.push("no " + L)
+        else problems.push("uses " + need[k] + " " + L + "s but there " + (have[k] == 1 ? "is only one" : "are only " + have[k]))
     }
-    return missing
+    return problems.join(", ")
 }
 
 // All dictionary words makeable from the given letters, longest first
@@ -262,9 +268,8 @@ function check_word(e) {
     var letters = board_letters.join()
     var missing = missing_letters(w, board_letters)
     if (missing) {
-        var note = "needs " + missing.toUpperCase().split("").join(", ")
-        set_result("check-result", "✗ " + W + " isn't on the board (" + note + ")", false)
-        add_checked(w, false, "Not on the board: " + note)
+        set_result("check-result", "✗ " + W + " can't be made: " + missing, false)
+        add_checked(w, false, "Can't be made: " + missing)
         return
     }
     set_result("check-result", "Checking…")
