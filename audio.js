@@ -101,7 +101,14 @@ function show_times_up(on) {
     }
 }
 
+// Round over: take the cursor out of the text box so the shortcuts work again
+function leave_text_box() {
+    var el = document.activeElement
+    if (el && (el.tagName == "INPUT" || el.tagName == "TEXTAREA")) el.blur()
+}
+
 function time_up() {
+    leave_text_box()
     clock_state = "up"
     show_times_up(true)
     update_main_button()
@@ -161,6 +168,7 @@ function countdown() {
 // Freeze the clock where it is (e.g. conundrum solved)
 function pause_clock() {
     if (clock_state != "running") return
+    leave_text_box()
     clock_stopped_at = clock_elapsed()
     clock_state = "stopped"
     $id("clock").pause()
