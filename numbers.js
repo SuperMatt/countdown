@@ -51,6 +51,9 @@ function random_number(big) {
     board_numbers = shuff_large.slice(0, big).concat(shuff_small.slice(0, 6 - big))
     $id("stage").innerHTML = tiles_html(board_numbers.map(String), "num")
     $id("generate-btn").disabled = false
+    // With auto-start on, the target comes straight up (like the show),
+    // which starts the get-ready pause
+    if (settings.auto_start) generate()
 }
 
 function generate() {

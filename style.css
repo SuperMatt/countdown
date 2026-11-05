@@ -117,6 +117,7 @@ body {
     padding: 3px 10px; border-radius: var(--radius);
     border: 1px solid var(--btn-line); background: transparent; color: var(--muted);
 }
+.tools .chip { color: var(--ink); font-weight: 700; }
 .chip.on { background: var(--btn-on-bg); color: var(--btn-on-ink); border-color: var(--btn-on-bg); }
 
 /* Clock */
@@ -306,7 +307,7 @@ body {
 .keys a { color: var(--muted); }
 
 /* Fullscreen: hide the page furniture, keep the game */
-.is-fullscreen .fb, .is-fullscreen .keys, .is-fullscreen .styles { display: none; }
+.is-fullscreen .fb, .is-fullscreen .keys, .is-fullscreen .styles:not(.tools) { display: none; }
 
 @media (max-width: 640px) {
     /* Street Countdown on a phone: rows of 6 bigger tiles instead of rows of 9 */

@@ -82,6 +82,10 @@
                         <button class="chip" id="opt-piles" onclick="toggle_carry_piles()" title="Like the show: letters already dealt stay out of the piles until they're reshuffled">Piles carry over: on</button>
                         <button class="chip" id="opt-cap" onclick="toggle_cap_repeats()" title="At most 2 of the same consonant (3 in Street Countdown)">Repeat cap: on</button>
                     </div>
+                    <div class="styles tools">
+                        <button class="chip" id="fullscreen-btn" onclick="toggle_fullscreen()">Fullscreen</button>
+                        <button class="chip" id="help-btn" onclick="open_help()" aria-haspopup="dialog">Help</button>
+                    </div>
                     <div class="fb fb-like" data-href="http://www.01189998819991197253.org" data-width="450" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="true"></div>
                 </div>
                 <svg class="clock" id="clock-face" viewBox="0 0 100 100" role="img" aria-label="Countdown clock">
@@ -101,8 +105,6 @@
                 <button class="btn tab" data-tab="letters" onclick="section('letters')">Letters</button>
                 <button class="btn tab" data-tab="numbers" onclick="section('numbers')">Numbers</button>
                 <button class="btn tab" data-tab="conundrum" onclick="section('conundrum')">Conundrum</button>
-                <button class="btn" id="fullscreen-btn" onclick="toggle_fullscreen()">Fullscreen</button>
-                <button class="btn" id="help-btn" onclick="open_help()" aria-haspopup="dialog">Help</button>
             </nav>
 
             <section id="letters" class="round">
@@ -220,7 +222,7 @@
                 <dl>
                     <dt>Style</dt><dd>Studio Blue, Quiz Sheet or Amber LED. Quiz Sheet is easiest to read on a TV in a bright room.</dd>
                     <dt>Sound</dt><dd>Turn the clock music on or off. The clock still runs.</dd>
-                    <dt>Auto-start</dt><dd>Starts the clock by itself after a 3 or 5 second "get ready" pause, once the letters are dealt or the target appears.</dd>
+                    <dt>Auto-start</dt><dd>Starts the clock by itself after a 3 or 5 second "get ready" pause, once the letters are dealt. In the numbers round the target comes up as soon as you choose the numbers, then the pause starts.</dd>
                     <dt>Answers at time's up</dt><dd>Shows the answers, solution or conundrum as soon as the clock runs out.</dd>
                     <dt>Piles carry over</dt><dd>Like the show: letters already dealt stay out of the piles in later rounds, until the piles are reshuffled.</dd>
                     <dt>Repeat cap</dt><dd>No more than 2 of the same consonant on a board (3 in Street Countdown).</dd>
