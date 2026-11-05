@@ -62,5 +62,6 @@ function guess_conundrum(e) {
         reveal_conundrum()
     } else {
         set_result("guess-result", "✗ " + g.toUpperCase() + " is wrong", false)
+        $id("guess").value = ""
     }
 }
