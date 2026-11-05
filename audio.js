@@ -60,6 +60,13 @@ function countdown() {
     if (clock_frame) cancelAnimationFrame(clock_frame)
     clock_started = performance.now()
     clock_frame = requestAnimationFrame(tick)
+
+    // Put the cursor in this round's text box so you can start typing straight away
+    var field = {letters: "check-word", conundrum: "guess"}[current_section]
+    if (field) {
+        $id(field).focus()
+        $id(field).select()
+    }
 }
 
 function stop_clock() {

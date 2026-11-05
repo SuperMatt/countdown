@@ -2,7 +2,11 @@
 document.addEventListener("keydown", function(e) {
     if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return
     var t = e.target
-    if (t.tagName == "INPUT" || t.tagName == "TEXTAREA" || t.isContentEditable) return
+    if (t.tagName == "INPUT" || t.tagName == "TEXTAREA" || t.isContentEditable) {
+        // Esc leaves the text box so the shortcuts work again
+        if (e.key == "Escape") t.blur()
+        return
+    }
 
     var k = e.key.toLowerCase()
     var handled = true
