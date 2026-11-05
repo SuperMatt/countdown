@@ -47,3 +47,46 @@ body {
     margin-right: auto;
     text-align: center;
 }
+
+.answers {
+    padding-top: 15px;
+    font-size: 18px;
+}
+
+.answers h3 {
+    margin-top: 10px;
+}
+
+.answers .word {
+    display: inline-block;
+    margin-right: 15px;
+    text-transform: uppercase;
+}
+
+.answers ol {
+    font-size: 24px;
+}
+
+/* Christmas mode: <html class="christmas">, set automatically in December or via ?christmas=1 */
+.christmas-only {
+    display: none;
+}
+
+html.christmas .christmas-only {
+    display: inline;
+}
+
+html.christmas .not-christmas {
+    display: none;
+}
+
+html.christmas body {
+    background-image: url("holly-2.png");
+    background-repeat: no-repeat;
+    background-size: 500px;
+    background-position: right top;
+}
+
+html.christmas .tile {
+    background-color: #006600;
+}

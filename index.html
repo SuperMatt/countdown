@@ -7,7 +7,16 @@
 		<meta property="og:title" content="Street Countdown">
 		<meta property="og:type" content="website">
 		<meta property="fb:app_id" content="316261905539566">
-        <meta charset="UTF-8"> 
+        <meta charset="UTF-8">
+        <script>
+            // Christmas mode: automatic in December. Override with ?christmas=1 or ?christmas=0
+            (function() {
+                var p = new URLSearchParams(location.search).get("christmas")
+                var on = p === null ? new Date().getMonth() === 11 : (p !== "0" && p !== "false")
+                if (on) document.documentElement.className += " christmas"
+            })()
+        </script>
+        <link rel="preload" href="clock.mp3" as="fetch" crossorigin="anonymous">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
         <link rel="stylesheet" href="style.css">
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
@@ -38,7 +47,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <h1>Street Countdown</h1>
+                    <h1 class="not-christmas">Street Countdown</h1>
+                    <img class="christmas-only" src="logo.png" width="500px" alt="Street Countdown">
                 </div>
             </div>
 			<div class="row" style="padding-top: 5px; padding-bottom: 5px">
@@ -48,7 +58,7 @@
 			</div>
             <div class="row">
                 <div class="col-md-4">
-                    <audio id="clock">
+                    <audio id="clock" preload="auto">
                         <source src="clock.mp3" type="audio/mpeg">
                     </audio>
                     <button class="btn btn-primary btn-lg" onclick="countdown()">GO!</button>
@@ -66,6 +76,14 @@
                     </div>
                 </div>
                 <div class="row">
+                    <div class="col-md-12">
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-default" id="mode-classic" onclick="set_mode('classic')">Classic (9 letters)</button>
+                            <button class="btn btn-default" id="mode-street" onclick="set_mode('street')">Street Countdown (18 letters)</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-md-12">Select vowels or consonants</div>
                 </div>
                 <div class="row">
@@ -77,16 +95,16 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12 stage">
-                        <div class="tile"><div class="char" id="t0">&nbsp;</div></div>
-                        <div class="tile"><div class="char" id="t1">&nbsp;</div></div>
-                        <div class="tile"><div class="char" id="t2">&nbsp;</div></div>
-                        <div class="tile"><div class="char" id="t3">&nbsp;</div></div>
-                        <div class="tile"><div class="char" id="t4">&nbsp;</div></div>
-                        <div class="tile"><div class="char" id="t5">&nbsp;</div></div>
-                        <div class="tile"><div class="char" id="t6">&nbsp;</div></div>
-                        <div class="tile"><div class="char" id="t7">&nbsp;</div></div>
-                        <div class="tile"><div class="char" id="t8">&nbsp;</div></div>
+                    <div class="col-md-12 stage" id="letter-stage">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-md-offset-9">
+                        <button class="btn btn-info btn-full" id="show-words" onclick="show_words()">Answers</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 answers" id="words">
                     </div>
                 </div>
             </div>
@@ -117,6 +135,10 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6 col-md-offset-3" id="target">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 answers" id="solution">
                     </div>
                 </div>
             </div>

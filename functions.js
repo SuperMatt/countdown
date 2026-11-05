@@ -21,6 +21,7 @@ function section(sec) {
   if (sec == "l") {
     show = "#letters"
     hide = "#numbers"
+    load_words()
   } else if (sec == "n") {
     show = "#numbers"
     hide = "#letters"
@@ -34,22 +35,32 @@ function section(sec) {
 function reset() {
   $("#stage").html("")
   $("#target").html("")
-  for (i = 0; i < 9; i++) {
-    $("#t" + i).html("&nbsp;")
-  }
+  $("#solution").html("")
+  $("#words").html("")
+
+  render_tiles()
 
   numvowels = 0
   numcons = 0
+  board_letters = []
 
   allvowels = shuffle(allvowels)
   allcons = shuffle(allcons)
 
   shuff_large = shuffle(large)
   shuff_small = shuffle(small)
+  board_numbers = []
+  target = null
 
   $("#clock").trigger("pause")
   $("#clock").prop("currentTime", 0)
 
   $("#consonants").attr("disabled", false)
   $("#vowels").attr("disabled", false)
+}
+
+function escape_html(s) {
+  return String(s).replace(/[&<>"]/g, function(c) {
+    return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]
+  })
 }
