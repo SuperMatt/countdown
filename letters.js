@@ -90,6 +90,8 @@ function reset_letters() {
     $id("words").innerHTML = ""
     $id("check-word").value = ""
     set_result("check-result", "")
+    checked = []
+    render_checked()
 }
 
 function letter(type) {
@@ -216,27 +218,64 @@ function show_words() {
 }
 
 // Word checker: is it in the dictionary, and can it be made from the board?
+// Every checked word stays listed under the board until the board is reset.
+var checked = []
+
+function add_checked(word, ok, note) {
+    checked = checked.filter(function(c) { return c.word != word })
+    checked.push({word: word, ok: ok, note: note})
+    render_checked()
+}
+
+function render_checked() {
+    var el = $id("checked")
+    if (checked.length == 0) {
+        el.innerHTML = ""
+        return
+    }
+    var best = null
+    checked.forEach(function(c) {
+        if (c.ok && (!best || c.word.length > best.word.length)) best = c
+    })
+    var html = '<div class="label">Your words' +
+        (best ? " · best " + escape_html(best.word.toUpperCase()) + " (" + best.word.length + ")" : "") + "</div><div class=\"chips\">"
+    checked.forEach(function(c) {
+        html += '<span class="checked-word ' + (c.ok ? "good" : "bad") + (c == best ? " best" : "") +
+                '" title="' + escape_html(c.note) + '">' +
+                (c.ok ? "✓ " : "✗ ") + '<span class="w">' + escape_html(c.word.toUpperCase()) + "</span>" +
+                (c.ok ? " " + c.word.length : "") + "</span>"
+    })
+    $id("checked").innerHTML = html + "</div>"
+}
+
 function check_word(e) {
     if (e) e.preventDefault()
-    var w = $id("check-word").value.toLowerCase().replace(/[^a-z]/g, "")
+    var input = $id("check-word")
+    var w = input.value.toLowerCase().replace(/[^a-z]/g, "")
     if (!w) return
     var W = w.toUpperCase()
     if (board_letters.length == 0) {
         set_result("check-result", "Pick some letters first.", false)
         return
     }
+    input.value = ""
+    var letters = board_letters.join()
     var missing = missing_letters(w, board_letters)
     if (missing) {
-        var list = missing.toUpperCase().split("").join(", ")
-        set_result("check-result", "✗ " + W + " isn't on the board (needs " + list + ")", false)
+        var note = "needs " + missing.toUpperCase().split("").join(", ")
+        set_result("check-result", "✗ " + W + " isn't on the board (" + note + ")", false)
+        add_checked(w, false, "Not on the board: " + note)
         return
     }
     set_result("check-result", "Checking…")
     load_words().then(function() {
+        if (letters !== board_letters.join()) return  // board changed meanwhile
         if (word_set.has(w)) {
             set_result("check-result", "✓ " + W + ": " + w.length + " letters", true)
+            add_checked(w, true, w.length + " letters")
         } else {
             set_result("check-result", "✗ " + W + " isn't in the dictionary", false)
+            add_checked(w, false, "Not in the dictionary")
         }
     }).catch(function() {
         set_result("check-result", "Couldn't load the dictionary.", false)

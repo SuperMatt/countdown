@@ -4,7 +4,7 @@
 :root,
 :root[data-style="studio"] {
     --bg: radial-gradient(120% 90% at 50% 0%, #1d3fb8 0%, #0b1a57 55%, #060f33 100%) fixed, #060f33;
-    --ink: #ffffff; --muted: #9fb3ff; --accent: #ffc83d; --accent-ink: #1a1400;
+    --ink: #ffffff; --bg-solid: #0b1a57; --muted: #9fb3ff; --accent: #ffc83d; --accent-ink: #1a1400;
     --good: #7dffa8; --bad: #ff8f8f;
     --btn-line: rgba(255,255,255,.35); --btn-on-bg: #ffffff; --btn-on-ink: #0b1a57;
     --display: "Archivo", "Arial Black", sans-serif; --body: "Archivo", Arial, sans-serif; --tile-font: var(--display);
@@ -22,7 +22,7 @@
 
 :root[data-style="quiz"] {
     --bg: linear-gradient(#dfe8f5 1px, transparent 1px) 0 0/22px 22px, linear-gradient(90deg, #dfe8f5 1px, transparent 1px) 0 0/22px 22px, #fdfdfb;
-    --ink: #161616; --muted: #6a6a6a; --accent: #e3321c; --accent-ink: #fff;
+    --ink: #161616; --bg-solid: #ffffff; --muted: #6a6a6a; --accent: #e3321c; --accent-ink: #fff;
     --good: #12823a; --bad: #c4210f;
     --btn-line: #161616; --btn-on-bg: #161616; --btn-on-ink: #fff;
     --display: "Bricolage Grotesque", "Arial Black", sans-serif; --body: "Bricolage Grotesque", Arial, sans-serif; --tile-font: var(--display);
@@ -40,7 +40,7 @@
 
 :root[data-style="led"] {
     --bg: repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px), #0e0b07;
-    --ink: #ffcf6b; --muted: #a07a33; --accent: #ffb000; --accent-ink: #120c02;
+    --ink: #ffcf6b; --bg-solid: #0e0b07; --muted: #a07a33; --accent: #ffb000; --accent-ink: #120c02;
     --good: #b6ff5c; --bad: #ff6a2a;
     --btn-line: #6b4a12; --btn-on-bg: #3a2708; --btn-on-ink: #ffcf6b;
     --display: "VT323", "Courier New", monospace; --body: "Share Tech Mono", "Courier New", monospace; --tile-font: var(--display);
@@ -210,6 +210,24 @@ body {
 .steps { margin: 0; padding-left: 1.6em; font-size: clamp(20px, 2.6vw, 34px); font-variant-numeric: tabular-nums; font-weight: 700; }
 .steps li.hidden-step { color: var(--muted); list-style-type: "? "; opacity: .6; }
 .muted { color: var(--muted); }
+
+/* Words the player has checked */
+.checked:empty { display: none; }
+.checked .label { text-align: left; }
+.checked .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.checked-word {
+    padding: .2em .7em;
+    border: 2px solid currentColor;
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: clamp(16px, 1.7vw, 22px);
+    font-variant-numeric: tabular-nums;
+}
+.checked-word .w { font-family: var(--display); font-weight: var(--weight); letter-spacing: .03em; }
+.checked-word.good { color: var(--good); }
+.checked-word.bad { color: var(--bad); opacity: .75; }
+.checked-word.bad .w { text-decoration: line-through; }
+.checked-word.best { background: var(--good); color: var(--bg-solid); border-color: var(--good); }
 
 /* Footer */
 .keys { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); border-top: var(--rule); padding-top: 14px; }
