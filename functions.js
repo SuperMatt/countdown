@@ -155,6 +155,23 @@ function toggle_fullscreen() {
   }
 }
 
+function open_help() {
+  var d = $id("help")
+  if (d.open) return
+  if (d.showModal) d.showModal()
+  else d.setAttribute("open", "")
+}
+
+function close_help() {
+  var d = $id("help")
+  if (d.close) d.close()
+  else d.removeAttribute("open")
+}
+
+function help_is_open() {
+  return $id("help").open
+}
+
 document.addEventListener("fullscreenchange", function() {
   var fs = !!document.fullscreenElement
   document.documentElement.classList.toggle("is-fullscreen", fs)
@@ -162,6 +179,10 @@ document.addEventListener("fullscreenchange", function() {
 })
 
 document.addEventListener("DOMContentLoaded", function() {
+  // Click outside the help box (on the backdrop) to close it
+  $id("help").addEventListener("click", function(e) {
+    if (e.target === this) close_help()
+  })
   if (!document.documentElement.requestFullscreen) $id("fullscreen-btn").hidden = true
   set_style(document.documentElement.dataset.style)
   render_options()

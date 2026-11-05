@@ -1,6 +1,8 @@
 // Keyboard shortcuts (listed in the page footer)
 document.addEventListener("keydown", function(e) {
     if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return
+    // While help is open, only Esc (handled by the dialog) does anything
+    if (help_is_open()) return
     var t = e.target
     if (t.tagName == "INPUT" || t.tagName == "TEXTAREA" || t.isContentEditable) {
         // Esc leaves the text box so the shortcuts work again
@@ -17,6 +19,7 @@ document.addEventListener("keydown", function(e) {
         // GO or Stop; never Clear, so a stray space can't wipe the board
         if (main_button_action() != "clear") main_action()
     }
+    else if (k == "?" || k == "h") open_help()
     else if (k == "r") reset()
     else if (k == "f") toggle_fullscreen()
     else if (k == "m") toggle_muted()
