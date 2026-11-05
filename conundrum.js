@@ -29,7 +29,6 @@ function new_conundrum() {
     load_words().then(function(dict) {
         if (!conundrums) conundrums = build_conundrums(dict)
         reset_conundrum()
-        stop_clock()
         conundrum_word = conundrums[Math.floor(Math.random() * conundrums.length)]
         var scrambled
         do {
@@ -37,6 +36,7 @@ function new_conundrum() {
         } while (scrambled == conundrum_word)
         $id("conundrum-stage").innerHTML = tiles_html(scrambled.toUpperCase().split(""))
         $id("reveal-btn").disabled = false
+        countdown()  // the clock starts as soon as the conundrum is shown
     }).catch(function() {
         $id("conundrum-answer").innerHTML = '<p class="muted">Couldn\'t load the dictionary. Reload the page and try again.</p>'
     })
